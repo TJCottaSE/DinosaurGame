@@ -1,0 +1,283 @@
+<!-- 
+    Built by: Tony Cotta
+    Contact: TJCottaSE@gmail.com
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8"/>
+<style>
+canvas {
+    border:1px solid #d3d3d3;
+    
+    position: absolute;
+    top: 5px;
+    left: 5px;
+}
+button {
+    position: relative;
+    margin-top: 300px;
+}
+</style>
+</head>
+<body onload="myGameArea.init()">
+    <br>
+    <div id="start">
+        <button onclick="startGame()">Start Game</button>
+    </div>
+
+
+<script>
+
+var myGamePiece;
+var myObstacles = [];
+var myGround = [];
+var myScore;
+var centeredButton;
+var leftPressed = false;
+var rightPressed = false;
+var lastDirectionPressed;
+var jumpTime = 12; // This variable controls the number of frames that pass before gravity begins to pull down on the game piece
+
+const canvasHeight = 810; // Needs to be dynamically sized
+const canvasWidth = 1440; // Needs to be dynamically sized
+
+// Change jump duration based on screen height
+if (canvasHeight < 300){
+    jumpTime = 6;
+}
+else if (canvasHeight < 600) {
+    jumpTime = 8;
+}
+else if (canvasHeight < 900) {
+    jumpTime = 10;
+}
+
+function startGame() {
+    myGamePiece = new component(canvasWidth/16, canvasHeight/9, "assets/Dino-2.png", canvasWidth/2, canvasHeight-25, "image");
+    myGamePiece.gravity = 0.05;
+    myScore = new component("30px", "Consolas", "black", 10, 30, "text");
+    document.getElementById("start").innerHTML = "<button onclick=\"accelerate(-0.5)\">Jump</button>";
+    myGameArea.start();
+}
+
+var myGameArea = {
+    backgroundCanvas : document.createElement("canvas"),
+    canvas : document.createElement("canvas"),
+    init : function() {
+        // Draws the background canvas below the play canvas
+        this.backgroundCanvas.width = canvasWidth;
+        this.backgroundCanvas.height = canvasHeight;
+        var ctx2 = this.backgroundCanvas.getContext("2d");
+        var backgroundCanvas2 = this.backgroundCanvas;
+        this.context2 = ctx2;
+        var background = new Image();
+        background.onload = function() {
+            ctx2.drawImage(background, 0, 0, canvasWidth, canvasHeight);
+            document.body.insertBefore(backgroundCanvas2, document.body.childNodes[0]);
+        }
+        background.src = "assets/bg.jpg";
+
+        // Draws the play canvas
+        this.canvas.width = canvasWidth;
+        this.canvas.height = canvasHeight;
+        this.context = this.canvas.getContext("2d");
+        document.body.insertBefore(this.canvas, document.body.childNodes[1]);
+        this.frameNo = 0;
+        this.frameCount = 0;
+    },
+    start : function() {
+        // Every 10 ms update the game area
+        this.interval = setInterval(updateGameArea, 10);
+    },
+    clear : function() {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+}
+
+function component(width, height, color, x, y, type, altImage) {
+    this.type = type;
+    if (type == "image") {
+        this.image = new Image();
+        this.image.src = color;
+    }
+    this.altImageSrc = altImage;
+    this.score = 0;
+    this.width = width;
+    this.height = height;
+    this.speedX = 0;
+    this.speedY = 0;    
+    this.x = x;
+    this.y = y;
+    this.gravity = 0;
+    this.gravitySpeed = 0;
+    this.frameInitJump = 0;
+    // Draws the image
+    this.update = function() {
+        ctx = myGameArea.context;
+        if (this.type == "text") {
+            ctx.font = this.width + " " + this.height;
+            ctx.fillStyle = color;
+            ctx.fillText(this.text, this.x, this.y);
+        } else if (type == "image") {
+            ctx.drawImage(this.image, 
+                this.x, 
+                this.y,
+                this.width, this.height);
+        } else {
+            ctx.fillStyle = color;
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+        }
+    }
+    // Changes the image's location
+    this.newPos = function() {
+        if (myGameArea.frameCount - this.frameInitJump > jumpTime) {this.gravity = 0.05}
+        this.gravitySpeed += this.gravity;
+        this.x += this.speedX;
+        this.y += this.speedY + this.gravitySpeed;
+        this.hitBottom();
+    }
+    // Stops the game piece at "ground level"
+    this.hitBottom = function() {
+        var rockbottom = myGameArea.canvas.height - this.height - 20;
+        if (this.y > rockbottom) {
+            this.y = rockbottom;
+            this.gravitySpeed = 0;
+        }
+    }
+    // Controls the crash into object mechanism ** STILL NEEDS WORK **
+    this.crashWith = function(otherobj) {
+        var myleft = this.x;
+        var myright = this.x + (this.width);
+        var mytop = this.y;
+        var mybottom = this.y + (this.height);
+        var otherleft = otherobj.x;
+        var otherright = otherobj.x + (otherobj.width);
+        var othertop = otherobj.y;
+        var otherbottom = otherobj.y + (otherobj.height);
+        var crash = true;
+        if ((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft > otherright)) {
+            crash = false;
+        }
+        return crash;
+    }
+}
+
+function updateGameArea() {
+    var x, height, gap, minHeight, maxHeight, minGap, maxGap;
+    for (i = 0; i < myObstacles.length; i += 1) {
+        if (myGamePiece.crashWith(myObstacles[i])) {
+            return;
+        } 
+    }
+    myGameArea.clear();
+    document.onkeydown = checkKey;
+    myGameArea.frameCount += 1;
+    if (leftPressed){myGameArea.frameNo += -1;}
+    if (rightPressed){myGameArea.frameNo += 1;}
+    
+    if (everyinterval(200)) {
+        x = myGameArea.canvas.width;
+        minHeight = 20;
+        maxHeight = 200;
+        height = Math.floor(Math.random()*(maxHeight-minHeight+1)+minHeight);
+        minGap = 50;
+        maxGap = 200;
+        gap = Math.floor(Math.random()*(maxGap-minGap+1)+minGap);
+        myObstacles.push(new component(50, 150, "assets/Meteor.png", x, 0, "image", "assets/Meteor-flipped.png"));
+        myGround.push(new component(50, 20, "blue", x, myGameArea.canvas.height - 20));
+        myGround.push(new component(50, 20, "black", x+50, myGameArea.canvas.height - 20));
+        myGround.push(new component(50, 20, "yellow", x+100, myGameArea.canvas.height - 20));
+        myGround.push(new component(50, 20, "red", x+150, myGameArea.canvas.height - 20));
+    }
+    // Moves Obstacles 
+    for (i = 0; i < myObstacles.length; i += 1) {
+        if (leftPressed){
+            myObstacles[i].x += 1;
+        }
+        if (rightPressed){
+            myObstacles[i].x += -1;
+        }
+
+        // Obstacles continue to fall
+        myObstacles[i].y += +1;
+
+        // Flip the image to create spiraling effect
+        if (myObstacles[i].y % 15 == 0){
+            var temp = myObstacles[i].image.src;
+            myObstacles[i].image = new Image();
+            myObstacles[i].image.src = myObstacles[i].altImageSrc;
+            myObstacles[i].altImageSrc = temp;
+        }
+        
+        myObstacles[i].update();
+    }
+    // Moves ground left to right
+    for (i = 0; i < myGround.length; i++) {
+        if (leftPressed){
+            myGround[i].x += 1;
+        }
+        if (rightPressed){
+            myGround[i].x += -1;
+        }
+        myGround[i].update();
+    }
+    
+    myScore.text="SCORE: " + myGameArea.frameNo;
+    myScore.update();
+    myGamePiece.newPos();
+    myGamePiece.update();
+}
+
+function everyinterval(n) {
+    if ((myGameArea.frameNo / n) % 1 == 0) {return true;}
+    return false;
+}
+
+function accelerate(n) {
+    // Disallows double jumping
+    if (myGamePiece.y == myGameArea.canvas.height - myGamePiece.height - 20){
+        myGamePiece.gravity = n;
+        myGamePiece.frameInitJump = myGameArea.frameCount;
+        //console.log("myGamePiece.frameInitJump = " + myGamePiece.frameInitJump);
+    }
+}
+
+function checkKey(e){
+    e = e || window.event;
+    console.log("Key code received = " + e.keyCode);
+    if (e.keyCode == '38' || e.keyCode == '32' || e.keyCode == '87'){  // JUMP!!
+        // Up arrow || space bar || 'w' pressed
+        accelerate(-0.5);
+    }
+    else if (e.keyCode == '40' || e.keyCode == '83'){ // Do nothing for now
+        // down arrow || 's' pressed
+        leftPressed = false;
+        rightPressed = false;
+    }
+    else if (e.keyCode == '37' || e.keyCode == '65'){ // Move character left
+        // left arrow or 'a' pressed
+        leftPressed = true;
+        rightPressed = false;
+    }
+    else if (e.keyCode == '39' || e.keyCode == '68'){ // Move character right
+        // right arrow  or 'd' pressed
+        rightPressed = true;
+        leftPressed = false;
+    }
+}
+</script>
+
+<br>
+
+<p>Jump over the obstacles. How long can you stay alive?</p>
+<h2>Controls</h2>
+<p>
+    Move Right: d, right arrow<br>
+    Move Left: a, left arrow<br>
+    Jump: w, up arrow, space bar<br>
+    Stop: s, down arrow<br>
+</p>
+
+</body>
+</html>
