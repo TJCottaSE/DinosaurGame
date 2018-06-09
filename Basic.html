@@ -58,7 +58,7 @@ else if (canvasHeight < 900) {
 function startGame() {
     myGamePiece = new component(canvasWidth/16, canvasHeight/9, "assets/Dino-2-flipped.png", canvasWidth/2, canvasHeight-25, "image", "assets/Dino-2.png");
     myGamePiece.gravity = 0.05;
-    myScore = new component("30px", "Consolas", "black", 10, 30, "text");
+    myScore = new component("30px", "Consolas", "white", 10, 30, "text");
     document.getElementById("start").innerHTML = "<button onclick=\"accelerate(-0.5)\">Jump</button>";
     myGameArea.start();
 }
@@ -201,8 +201,9 @@ function updateGameArea() {
         if (myGameArea.frameNo != 0){
             for (i = 0; i < myRound; i++){
                 randX = Math.floor(Math.random()*x);
-                //console.log('randX = ' + randX);
-                myObstacles.push(new component(50, 150, "assets/Meteor.png", randX, 0, "image", "assets/Meteor-flipped.png"));
+                randY = Math.floor(Math.random()*40)*(-1);
+                // consider using randY for more difficulty
+                myObstacles.push(new component(50, 150, "assets/Meteor.png", randX, y, "image", "assets/Meteor-flipped.png"));
             }
         }
 
@@ -212,7 +213,7 @@ function updateGameArea() {
         myGround.push(new component(50, 20, "red", x+150, y - 20));
     }
 
-    
+
     // Moves Obstacles 
     for (i = 0; i < myObstacles.length; i += 1) {
         if (leftPressed){
