@@ -33,6 +33,7 @@ var myGamePiece;
 var myObstacles = [];
 var myGround = [];
 var myScore;
+var myRound = 1;
 var centeredButton;
 var leftPressed = false;
 var rightPressed = false;
@@ -41,6 +42,7 @@ var jumpTime = 12; // This variable controls the number of frames that pass befo
 
 const canvasHeight = 810; // Needs to be dynamically sized
 const canvasWidth = 1440; // Needs to be dynamically sized
+const roundDuration = 2000; // Controls the length of each stage based on number of frames traversed to the right
 
 // Change jump duration based on screen height
 if (canvasHeight < 300){
@@ -164,11 +166,18 @@ function component(width, height, color, x, y, type, altImage) {
 }
 
 function updateGameArea() {
-    var x, height, gap, minHeight, maxHeight, minGap, maxGap;
+    var x, y, minHeight, maxHeight, randX;
     for (i = 0; i < myObstacles.length; i += 1) {
         if (myGamePiece.crashWith(myObstacles[i])) {
+            // Show Game Over message
+            console.log("Game Over!!!!!!");
+            // End
             return;
-        } 
+        } else if (myGameArea.frameNo % roundDuration == 0){
+            // Advance to next level
+            myRound = (myGameArea.frameNo / roundDuration) + 1;
+            //console.log("myRound set to " + myRound);
+        }
     }
     myGameArea.clear();
     document.onkeydown = checkKey;
@@ -176,19 +185,25 @@ function updateGameArea() {
     if (leftPressed){myGameArea.frameNo += -1;}
     if (rightPressed){myGameArea.frameNo += 1;}
     
-    if (everyinterval(200)) {
+    /* Consider possible changing the interval as well as the number of meteors on round change
+     * to better facilitate difficulty levels.
+     */
+    if (everyinterval(200)) { 
         x = myGameArea.canvas.width;
-        minHeight = 20;
-        maxHeight = 200;
-        height = Math.floor(Math.random()*(maxHeight-minHeight+1)+minHeight);
-        minGap = 50;
-        maxGap = 200;
-        gap = Math.floor(Math.random()*(maxGap-minGap+1)+minGap);
-        myObstacles.push(new component(50, 150, "assets/Meteor.png", x, 0, "image", "assets/Meteor-flipped.png"));
-        myGround.push(new component(50, 20, "blue", x, myGameArea.canvas.height - 20));
-        myGround.push(new component(50, 20, "black", x+50, myGameArea.canvas.height - 20));
-        myGround.push(new component(50, 20, "yellow", x+100, myGameArea.canvas.height - 20));
-        myGround.push(new component(50, 20, "red", x+150, myGameArea.canvas.height - 20));
+        y = myGameArea.canvas.height;
+        
+        if (myGameArea.frameNo != 0){
+            for (i = 0; i < myRound; i++){
+                randX = Math.floor(Math.random()*x);
+                //console.log('randX = ' + randX);
+                myObstacles.push(new component(50, 150, "assets/Meteor.png", randX, 0, "image", "assets/Meteor-flipped.png"));
+            }
+        }
+
+        myGround.push(new component(50, 20, "blue", x, y - 20));
+        myGround.push(new component(50, 20, "black", x+50, y - 20));
+        myGround.push(new component(50, 20, "yellow", x+100, y - 20));
+        myGround.push(new component(50, 20, "red", x+150, y - 20));
     }
     // Moves Obstacles 
     for (i = 0; i < myObstacles.length; i += 1) {
