@@ -37,12 +37,17 @@ var myRound = 1;
 var centeredButton;
 var leftPressed = false;
 var rightPressed = false;
+var useRandY = false;  // Randomizes the y-coord for incoming meteors; Default = 0;
 var lastDirectionPressed;
 var jumpTime = 12; // This variable controls the number of frames that pass before gravity begins to pull down on the game piece
 
 const canvasHeight = 810; // Needs to be dynamically sized
 const canvasWidth = 1440; // Needs to be dynamically sized
 const roundDuration = 2000; // Controls the length of each stage based on number of frames traversed to the right
+var GamePieceWidth = canvasWidth/16;
+var GamePieceHeight = canvasHeight/9;
+var ObstacleWidth = canvasWidth/16;
+var ObstacleHeight = canvasHeight/9;
 
 // Change jump duration based on screen height
 if (canvasHeight < 300){
@@ -56,7 +61,7 @@ else if (canvasHeight < 900) {
 }
 
 function startGame() {
-    myGamePiece = new component(canvasWidth/16, canvasHeight/9, "assets/Dino-2-flipped.png", canvasWidth/2, canvasHeight-25, "image", "assets/Dino-2.png");
+    myGamePiece = new component(GamePieceWidth, GamePieceHeight, "assets/Dino-2-flipped.png", canvasWidth/2, canvasHeight-25, "image", "assets/Dino-2.png");
     myGamePiece.gravity = 0.05;
     myScore = new component("30px", "Consolas", "white", 10, 30, "text");
     document.getElementById("start").innerHTML = "<button onclick=\"accelerate(-0.5)\">Jump</button>";
@@ -147,7 +152,7 @@ function component(width, height, color, x, y, type, altImage) {
             this.gravitySpeed = 0;
         }
     }
-    // Controls the crash into object mechanism ** STILL NEEDS WORK **
+    // Controls the crash into object mechanism
     this.crashWith = function(otherobj) {
         var myleft = this.x;
         var myright = this.x + (this.width);
@@ -158,8 +163,12 @@ function component(width, height, color, x, y, type, altImage) {
         var othertop = otherobj.y;
         var otherbottom = otherobj.y + (otherobj.height);
         var crash = true;
-        if ((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft > otherright)) {
-            crash = false;
+        if ( (mybottom < (othertop + (canvasHeight/32))) || // Allow for visual overlap before crashing
+             (mytop > (otherbottom - (canvasHeight/64))) || 
+             (myright < (otherleft + (canvasWidth/96))) || 
+             (myleft > (otherright - (canvasWidth/96))) ){
+
+                crash = false;
         }
         return crash;
     }
@@ -176,7 +185,6 @@ function updateGameArea() {
         } else if (myGameArea.frameNo % roundDuration == 0){
             // Advance to next level
             myRound = (myGameArea.frameNo / roundDuration) + 1;
-            //console.log("myRound set to " + myRound);
         }
     }
 
@@ -200,17 +208,25 @@ function updateGameArea() {
         
         if (myGameArea.frameNo != 0){
             for (i = 0; i < myRound; i++){
-                randX = Math.floor(Math.random()*x);
-                randY = Math.floor(Math.random()*40)*(-1);
+                /* Two times the width of a meteor obstacle, added to the canvas width
+                 * to allow the meteor's starting x position to occur outside the view
+                 *     mwCANVASmw
+                 */
+                randX = Math.floor(Math.random()*canvasWidth+ObstacleWidth);
+                if (useRandY){
+                    randY = Math.floor(Math.random()*(-1)*ObstacleHeight-ObstacleHeight);
+                } else {
+                    randY = (-1)*(ObstacleHeight);
+                }
                 // consider using randY for more difficulty
-                myObstacles.push(new component(50, 150, "assets/Meteor.png", randX, 0, "image", "assets/Meteor-flipped.png"));
+                myObstacles.push(new component(50, 150, "assets/Meteor.png", randX, randY, "image", "assets/Meteor-flipped.png"));
             }
         }
 
-        myGround.push(new component(50, 20, "blue", x, y - 20));
-        myGround.push(new component(50, 20, "black", x+50, y - 20));
-        myGround.push(new component(50, 20, "yellow", x+100, y - 20));
-        myGround.push(new component(50, 20, "red", x+150, y - 20));
+        myGround.push(new component(50, 20, "assets/g1.png", x, y - 20, "image"));        // Temp Ground *Needs to be updated with non-copywright images (in Progress)*
+        myGround.push(new component(50, 20, "assets/g2.png", x+50, y - 20, "image"));
+        myGround.push(new component(50, 20, "assets/g1.png", x+100, y - 20, "image"));
+        myGround.push(new component(50, 20, "assets/g2.png", x+150, y - 20, "image"));
     }
 
 
@@ -234,7 +250,12 @@ function updateGameArea() {
             myObstacles[i].altImageSrc = temp;
         }
         
-        myObstacles[i].update();
+        // Meteor disappear after rock crosses ground
+        if ( (myObstacles[i].y + myObstacles[i].height - 20) > myGameArea.canvas.height) {
+            //console.log("I got called");
+            myObstacles[i].y = myGameArea.canvas.height + myObstacles[i].height;
+        }
+        myObstacles[i].update();                                    
     }
     // Moves ground left to right
     for (i = 0; i < myGround.length; i++) {
@@ -263,7 +284,6 @@ function accelerate(n) {
     if (myGamePiece.y == myGameArea.canvas.height - myGamePiece.height - 20){
         myGamePiece.gravity = n;
         myGamePiece.frameInitJump = myGameArea.frameCount;
-        //console.log("myGamePiece.frameInitJump = " + myGamePiece.frameInitJump);
     }
 }
 
@@ -274,7 +294,7 @@ function checkKey(e){
         // Up arrow || space bar || 'w' pressed
         accelerate(-0.5);
     }
-    else if (e.keyCode == '40' || e.keyCode == '83'){ // Do nothing for now
+    else if (e.keyCode == '40' || e.keyCode == '83'){ // Stop Moving, Stand Still
         // down arrow || 's' pressed
         leftPressed = false;
         rightPressed = false;
@@ -283,20 +303,25 @@ function checkKey(e){
         // left arrow or 'a' pressed
         leftPressed = true;
         rightPressed = false;
-        var temp = myGamePiece.image.src;
-            myGamePiece.image = new Image();
-            myGamePiece.image.src = myGamePiece.altImageSrc;
-            myGamePiece.altImageSrc = temp;
+        if (!myGamePiece.image.src.includes("flipped")){
+            flipCharImage();
+        }
     }
     else if (e.keyCode == '39' || e.keyCode == '68'){ // Move character right
         // right arrow  or 'd' pressed
         rightPressed = true;
         leftPressed = false;
-        var temp = myGamePiece.image.src;
-            myGamePiece.image = new Image();
-            myGamePiece.image.src = myGamePiece.altImageSrc;
-            myGamePiece.altImageSrc = temp;
+        if (myGamePiece.image.src.includes("flipped")){
+            flipCharImage();
+        }
     }
+}
+
+function flipCharImage(){
+    var temp = myGamePiece.image.src;
+    myGamePiece.image = new Image();
+    myGamePiece.image.src = myGamePiece.altImageSrc;
+    myGamePiece.altImageSrc = temp;
 }
 </script>
 
