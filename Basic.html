@@ -56,7 +56,7 @@ else if (canvasHeight < 900) {
 }
 
 function startGame() {
-    myGamePiece = new component(canvasWidth/16, canvasHeight/9, "assets/Dino-2.png", canvasWidth/2, canvasHeight-25, "image");
+    myGamePiece = new component(canvasWidth/16, canvasHeight/9, "assets/Dino-2.png", canvasWidth/2, canvasHeight-25, "image", "assets/Dino-2-flipped.png");
     myGamePiece.gravity = 0.05;
     myScore = new component("30px", "Consolas", "black", 10, 30, "text");
     document.getElementById("start").innerHTML = "<button onclick=\"accelerate(-0.5)\">Jump</button>";
@@ -179,11 +179,16 @@ function updateGameArea() {
             //console.log("myRound set to " + myRound);
         }
     }
+
     myGameArea.clear();
     document.onkeydown = checkKey;
     myGameArea.frameCount += 1;
-    if (leftPressed){myGameArea.frameNo += -1;}
-    if (rightPressed){myGameArea.frameNo += 1;}
+    if (leftPressed){
+        myGameArea.frameNo += -1;
+    }
+    if (rightPressed){
+        myGameArea.frameNo += 1;
+    }
     
     /* Consider possible changing the interval as well as the number of meteors on round change
      * to better facilitate difficulty levels.
@@ -274,11 +279,19 @@ function checkKey(e){
         // left arrow or 'a' pressed
         leftPressed = true;
         rightPressed = false;
+        var temp = myGamePiece.image.src;
+            myGamePiece.image = new Image();
+            myGamePiece.image.src = myGamePiece.altImageSrc;
+            myGamePiece.altImageSrc = temp;
     }
     else if (e.keyCode == '39' || e.keyCode == '68'){ // Move character right
         // right arrow  or 'd' pressed
         rightPressed = true;
         leftPressed = false;
+        var temp = myGamePiece.image.src;
+            myGamePiece.image = new Image();
+            myGamePiece.image.src = myGamePiece.altImageSrc;
+            myGamePiece.altImageSrc = temp;
     }
 }
 </script>
