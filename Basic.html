@@ -92,7 +92,7 @@ var myGameArea = {
         document.body.insertBefore(this.canvas, document.body.childNodes[1]);
         this.frameNo = 0;
         this.frameCount = 0;
-        for (var x = 0; x <= canvasWidth; x += 50){
+        for (var x = 0; x <= canvasWidth; x += 50){ // Draw the ground at the start of the stage.
             myGround.push(new component(50, 20, "assets/g1.png", x, canvasHeight - 20, "image"));
             myGround.push(new component(50, 20, "assets/g2.png", x+50, canvasHeight - 20, "image"));
         }
@@ -221,6 +221,12 @@ function updateGameArea() {
         if (myGamePiece.crashWith(myObstacles[i])) {
             // Show Game Over message
             console.log("Game Over!!!!!!");
+            var gameOver = new component("30px", "Consolas", "white", canvasWidth/2 - 50, canvasHeight/2, "text");
+            gameOver.text = "GAME OVER";
+            gameOver.update();
+            myScore.x = canvasWidth / 2 - 50;
+            myScore.y = canvasHeight / 2 + 30;
+            myScore.update();
             myGameArea.stop();
             // End
             return;
@@ -281,7 +287,7 @@ function updateGameArea() {
             myObstacles[i].x += -1;
         }
 
-        // Obstacles continue to fall
+        // Obstacles continue to fall even when character has stopped moving
         myObstacles[i].y += +1;
 
         // Flip the image to create spiraling effect
@@ -299,6 +305,7 @@ function updateGameArea() {
 
         myObstacles[i].update();                                    
     }
+
     // Moves ground left to right
     for (i = 0; i < myGround.length; i++) {
         if (leftPressed){
