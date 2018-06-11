@@ -96,6 +96,7 @@ var myGameArea = {
     start : function() {
         // Every 10 ms update the game area
         this.interval = setInterval(updateGameArea, 10);
+        //this.interval2 = setInterval(updateBackground, 10);
     },
     clear : function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -172,6 +173,37 @@ function component(width, height, color, x, y, type, altImage) {
         }
         return crash;
     }
+}
+
+function updateBackground() {
+    
+    var cycleNum = Math.floor(myGameArea.frameCount / 10) % 6;
+    console.log("myGameArea.frameCount/10 = " + myGameArea.frameCount/10);
+    console.log("cycleNum = " + cycleNum);
+    background = new Image();
+    switch (cycleNum){
+        case 0:
+            background.src = "assets/bg1.jpg";
+            break;
+        case 1:
+            background.src = "assets/bg2.jpg";
+            break;
+        case 2:
+            background.src = "assets/bg3.jpg";
+            break;
+        case 3:
+            background.src = "assets/bg4.jpg";
+            break;
+        case 4:
+            background.src = "assets/bg5.jpg";
+            break;
+        case 5:
+            background.src = "assets/bg6.jpg";
+            break;
+    }
+
+    myGameArea.context2.drawImage(background, 0, 0, canvasWidth, canvasHeight);
+
 }
 
 function updateGameArea() {
