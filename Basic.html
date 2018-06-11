@@ -92,6 +92,11 @@ var myGameArea = {
         document.body.insertBefore(this.canvas, document.body.childNodes[1]);
         this.frameNo = 0;
         this.frameCount = 0;
+        for (var x = 0; x <= canvasWidth; x += 50){
+            myGround.push(new component(50, 20, "assets/g1.png", x, canvasHeight - 20, "image"));
+            myGround.push(new component(50, 20, "assets/g2.png", x+50, canvasHeight - 20, "image"));
+        }
+        
     },
     start : function() {
         // Every 10 ms update the game area
