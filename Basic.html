@@ -98,6 +98,10 @@ var myGameArea = {
         this.interval = setInterval(updateGameArea, 10);
         //this.interval2 = setInterval(updateBackground, 10);
     },
+    stop : function() {
+        clearInterval(this.interval);
+        clearInterval(this.interval2);
+    },
     clear : function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
@@ -212,6 +216,7 @@ function updateGameArea() {
         if (myGamePiece.crashWith(myObstacles[i])) {
             // Show Game Over message
             console.log("Game Over!!!!!!");
+            myGameArea.stop();
             // End
             return;
         } else if (myGameArea.frameNo % roundDuration == 0){
@@ -286,7 +291,7 @@ function updateGameArea() {
         if ( (myObstacles[i].y + myObstacles[i].height - 20) > myGameArea.canvas.height) {
             myObstacles.shift();
         }
-        
+
         myObstacles[i].update();                                    
     }
     // Moves ground left to right
