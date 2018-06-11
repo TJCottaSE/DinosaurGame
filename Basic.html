@@ -234,10 +234,19 @@ function updateGameArea() {
     /* Consider possible changing the interval as well as the number of meteors on round change
      * to better facilitate difficulty levels.
      */
-    if (everyinterval(200)) { 
+    if (frameInterval(200)) { 
         x = myGameArea.canvas.width;
         y = myGameArea.canvas.height;
         
+
+
+        myGround.push(new component(50, 20, "assets/g1.png", x, y - 20, "image"));        // Temp Ground *Needs to be updated with non-copywright images (in Progress)*
+        myGround.push(new component(50, 20, "assets/g2.png", x+50, y - 20, "image"));
+        myGround.push(new component(50, 20, "assets/g1.png", x+100, y - 20, "image"));
+        myGround.push(new component(50, 20, "assets/g2.png", x+150, y - 20, "image"));
+    }
+
+    if (timeInterval(200)) {
         if (myGameArea.frameNo != 0){
             for (i = 0; i < myRound; i++){
                 /* Two times the width of a meteor obstacle, added to the canvas width
@@ -254,13 +263,7 @@ function updateGameArea() {
                 myObstacles.push(new component(50, 150, "assets/Meteor.png", randX, randY, "image", "assets/Meteor-flipped.png"));
             }
         }
-
-        myGround.push(new component(50, 20, "assets/g1.png", x, y - 20, "image"));        // Temp Ground *Needs to be updated with non-copywright images (in Progress)*
-        myGround.push(new component(50, 20, "assets/g2.png", x+50, y - 20, "image"));
-        myGround.push(new component(50, 20, "assets/g1.png", x+100, y - 20, "image"));
-        myGround.push(new component(50, 20, "assets/g2.png", x+150, y - 20, "image"));
     }
-
 
     // Moves Obstacles 
     for (i = 0; i < myObstacles.length; i += 1) {
@@ -306,8 +309,13 @@ function updateGameArea() {
     myGamePiece.update();
 }
 
-function everyinterval(n) {
+function frameInterval(n) {
     if ((myGameArea.frameNo / n) % 1 == 0) {return true;}
+    return false;
+}
+
+function timeInterval(n) {
+    if ((myGameArea.frameCount / n) % 1 == 0) {return true;}
     return false;
 }
 
