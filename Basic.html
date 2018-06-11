@@ -237,9 +237,6 @@ function updateGameArea() {
     if (frameInterval(200)) { 
         x = myGameArea.canvas.width;
         y = myGameArea.canvas.height;
-        
-
-
         myGround.push(new component(50, 20, "assets/g1.png", x, y - 20, "image"));        // Temp Ground *Needs to be updated with non-copywright images (in Progress)*
         myGround.push(new component(50, 20, "assets/g2.png", x+50, y - 20, "image"));
         myGround.push(new component(50, 20, "assets/g1.png", x+100, y - 20, "image"));
@@ -287,9 +284,9 @@ function updateGameArea() {
         
         // Meteor disappear after rock crosses ground
         if ( (myObstacles[i].y + myObstacles[i].height - 20) > myGameArea.canvas.height) {
-            //console.log("I got called");
-            myObstacles[i].y = myGameArea.canvas.height + myObstacles[i].height;
+            myObstacles.shift();
         }
+        
         myObstacles[i].update();                                    
     }
     // Moves ground left to right
