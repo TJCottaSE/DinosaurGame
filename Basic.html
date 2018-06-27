@@ -32,6 +32,7 @@ button {
 var myGamePiece;
 var myObstacles = [];
 var myGround = [];
+var myCrators = [];
 var myScore;
 var myRound = 1;
 var centeredButton;
@@ -61,9 +62,9 @@ else if (canvasHeight < 900) {
 }
 
 function startGame() {
-    myGamePiece = new component(GamePieceWidth, GamePieceHeight, "assets/Dino-2-flipped.png", canvasWidth/2, canvasHeight-25, "image", "assets/Dino-2.png");
+    myGamePiece = new component(GamePieceWidth, GamePieceHeight, "assets/Dino-2-flipped.png", canvasWidth/2, canvasHeight-25, "image", ["assets/Dino-2.png"]);
     myGamePiece.gravity = 0.05;
-    myScore = new component("30px", "Consolas", "white", 10, 30, "text");
+    myScore = new component("30px", "Consolas", "white", 10, 30, "text", []);
     document.getElementById("start").innerHTML = ""; //"<button onclick=\"accelerate(-0.5)\">Jump</button>";
     myGameArea.start();
 }
@@ -93,15 +94,15 @@ var myGameArea = {
         this.frameNo = 0;
         this.frameCount = 0;
         for (var x = 0; x <= canvasWidth; x += 50){ // Draw the ground at the start of the stage.
-            myGround.push(new component(50, 20, "assets/g1.png", x, canvasHeight - 20, "image"));
-            myGround.push(new component(50, 20, "assets/g2.png", x+50, canvasHeight - 20, "image"));
+            myGround.push(new component(100, 40, "assets/g1.png", x, canvasHeight - 40, "image", []));
+            //myGround.push(new component(50, 20, "assets/g2.png", x+50, canvasHeight - 20, "image",[]));
         }
         
     },
     start : function() {
         // Every 10 ms update the game area
         this.interval = setInterval(updateGameArea, 10);
-        this.interval2 = setInterval(updateBackground, 500);
+        //this.interval2 = setInterval(updateBackground, 500);
     },
     stop : function() {
         clearInterval(this.interval);
@@ -112,13 +113,14 @@ var myGameArea = {
     }
 }
 
-function component(width, height, color, x, y, type, altImage) {
+function component(width, height, color, x, y, type, altImageList) {
     this.type = type;
     if (type == "image") {
         this.image = new Image();
         this.image.src = color;
     }
-    this.altImageSrc = altImage;
+    this.altImageSrc = altImageList[0];
+    this.altImageList = altImageList;
     this.score = 0;
     this.width = width;
     this.height = height;
@@ -163,7 +165,7 @@ function component(width, height, color, x, y, type, altImage) {
         }
     }
     // Controls the crash into object mechanism
-    this.crashWith = function(otherobj) {
+    this.crashWith = function(otherobj, strict) {
         var myleft = this.x;
         var myright = this.x + (this.width);
         var mytop = this.y;
@@ -173,12 +175,21 @@ function component(width, height, color, x, y, type, altImage) {
         var othertop = otherobj.y;
         var otherbottom = otherobj.y + (otherobj.height);
         var crash = true;
-        if ( (mybottom < (othertop + (canvasHeight/32))) || // Allow for visual overlap before crashing
-             (mytop > (otherbottom - (canvasHeight/64))) || 
-             (myright < (otherleft + (canvasWidth/96))) || 
-             (myleft > (otherright - (canvasWidth/96))) ){
+        if (!strict){
+            if ( (mybottom < (othertop + (canvasHeight/32))) || // Allow for visual overlap before crashing
+                (mytop > (otherbottom - (canvasHeight/64))) || 
+                (myright < (otherleft + (canvasWidth/96))) || 
+                (myleft > (otherright - (canvasWidth/96))) ){
 
-                crash = false;
+                    crash = false;
+            }
+        } else {
+            if ( mybottom < othertop ||
+                mytop > otherbottom ||
+                myright < (otherleft + (canvasWidth/96)) ||
+                myleft > (otherright - (canvasWidth/96))) {
+                    crash = false;
+                }
         }
         return crash;
     }
@@ -210,18 +221,18 @@ function updateBackground() {
             background.src = "assets/bg6.jpg";
             break;
     }
-    
     myGameArea.context2.drawImage(background, 0, 0, canvasWidth, canvasHeight);
-
 }
 
 function updateGameArea() {
     var x, y, minHeight, maxHeight, randX;
+
+    // Check end condition with obstacle crash
     for (i = 0; i < myObstacles.length; i += 1) {
         if (myGamePiece.crashWith(myObstacles[i])) {
             // Show Game Over message
             //console.log("Game Over!!!!!!");
-            var gameOver = new component("30px", "Consolas", "white", canvasWidth/2 - 50, canvasHeight/2, "text");
+            var gameOver = new component("30px", "Consolas", "white", canvasWidth/2 - 50, canvasHeight/2, "text", []);
             gameOver.text = "GAME OVER";
             gameOver.update();
             myScore.x = canvasWidth / 2 - 50;
@@ -233,6 +244,21 @@ function updateGameArea() {
         } else if (myGameArea.frameNo % roundDuration == 0){
             // Advance to next level
             myRound = (myGameArea.frameNo / roundDuration) + 1;
+        }
+    }
+
+    // Check end condition with crater crash
+    for (j = 0; j < myCrators.length; j += 1){
+        if (myGamePiece.crashWith(myCrators[j], true)){
+            var gameOver = new component("30px", "Consolas", "white", canvasWidth/2 - 50, canvasHeight/2, "text", []);
+            gameOver.text = "GAME OVER";
+            gameOver.update();
+            myScore.x = canvasWidth / 2 - 50;
+            myScore.y = canvasHeight / 2 + 30;
+            myScore.update();
+            myGameArea.stop();
+            // End
+            return;
         }
     }
 
@@ -250,13 +276,13 @@ function updateGameArea() {
     /* Consider possible changing the interval as well as the number of meteors on round change
      * to better facilitate difficulty levels.
      */
-    if (frameInterval(200)) { 
+    if (frameInterval(50)) { 
         x = myGameArea.canvas.width;
         y = myGameArea.canvas.height;
-        myGround.push(new component(50, 20, "assets/g1.png", x, y - 20, "image"));        // Temp Ground *Needs to be updated with non-copywright images (in Progress)*
-        myGround.push(new component(50, 20, "assets/g2.png", x+50, y - 20, "image"));
-        myGround.push(new component(50, 20, "assets/g1.png", x+100, y - 20, "image"));
-        myGround.push(new component(50, 20, "assets/g2.png", x+150, y - 20, "image"));
+        myGround.push(new component(100, 40, "assets/g1.png", x, y - 40, "image", []));
+        //myGround.push(new component(50, 20, "assets/g1.png", x+50, y - 20, "image", []));
+        //myGround.push(new component(50, 20, "assets/g1.png", x+100, y - 20, "image", []));
+        //myGround.push(new component(50, 20, "assets/g1.png", x+150, y - 20, "image", []));
     }
 
     // Small Meteors
@@ -274,14 +300,15 @@ function updateGameArea() {
                     randY = (-1)*(ObstacleHeight);
                 }
                 // consider using randY for more difficulty
-                myObstacles.push(new component(50, 150, "assets/Meteor.png", randX, randY, "image", "assets/Meteor-flipped.png"));
+                myObstacles.push(new component(50, 150, "assets/Meteor.png", randX, randY, "image", ["assets/Meteor-flipped.png"]));
             }
         }
     }
 
     // Big Meteor
-    if (timeInterval(Math.random*5000+2500)){
+    if (timeInterval(500 /*Math.random*5000+2500*/)){
         // Insert Some Big Metor Logic Here
+        myCrators.push(new component(100, 40, "assets/crater.png", myGameArea.canvas.width, myGameArea.canvas.height - 41, "image", []));
     }
 
     // Moves Obstacles 
@@ -321,6 +348,17 @@ function updateGameArea() {
             myGround[i].x += -1;
         }
         myGround[i].update();
+    }
+
+    // Moves Crators left to right
+    for(i = 0; i < myCrators.length; i += 1){
+        if (leftPressed){
+            myCrators[i].x += 1;
+        }
+        if (rightPressed){
+            myCrators[i].x += -1;
+        }
+        myCrators[i].update();
     }
     
     myScore.text="SCORE: " + myGameArea.frameNo;
