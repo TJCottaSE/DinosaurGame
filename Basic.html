@@ -275,9 +275,7 @@ function updateGameArea() {
         myGameArea.frameNo += 1;
     }
     
-    /* Consider possible changing the interval as well as the number of meteors on round change
-     * to better facilitate difficulty levels.
-     */
+    // Draw Ground Components as screen scrolls
     if (frameInterval(50)) { 
         x = myGameArea.canvas.width;
         y = myGameArea.canvas.height;
@@ -306,10 +304,13 @@ function updateGameArea() {
 
     // Big Meteor
     if (timeInterval(500 /*Math.random*5000+2500*/)){
-        // Insert Some Big Metor Logic Here
-
-        myObstacles.push(new component(150, 200, ["assets/Bigmeteor1.png", "assets/Bigmeteor2.png", "assets/Bigmeteor3.png", "assets/Bigmeteor4.png"], canvasWidth, -200, "image"));
-        //myCrators.push(new component(100, 40, "assets/crater.png", myGameArea.canvas.width, myGameArea.canvas.height - 41, "image", []));
+        randX = Math.floor(Math.random()*canvasWidth+150);
+        if (useRandY){
+            randY = Math.floor(Math.random()*(-1)*ObstacleHeight-200);
+        } else {
+            randY = (-1)*(ObstacleHeight);
+        }
+        myObstacles.push(new component(150, 200, ["assets/Bigmeteor1.png", "assets/Bigmeteor2.png", "assets/Bigmeteor3.png", "assets/Bigmeteor4.png"], randX, randY, "image"));
     }
 
     // Moves Obstacles 
@@ -327,13 +328,24 @@ function updateGameArea() {
         // Flip the image to create spiraling effect
         if (myObstacles[i].y % 15 == 0){
             var temp = myObstacles[i].image.src;
+            var current = temp.split("/assets");
+
+            var tempList = myObstacles[i].imageList;
+            var index;
+            for (j = 0; j < tempList.length; j += 1){
+                if (temp.includes(tempList[j])) {
+                    index = j + 1;
+                }
+            }
             myObstacles[i].image = new Image();
-            myObstacles[i].image.src = myObstacles[i].altImageSrc;
-            myObstacles[i].altImageSrc = temp;
+            myObstacles[i].image.src = tempList[index % tempList.length];
         }
         
         // Meteor disappear after rock crosses ground
-        if ( (myObstacles[i].y + myObstacles[i].height - 20) > myGameArea.canvas.height) {
+        if ( (myObstacles[i].y + myObstacles[i].height - 20) > myGameArea.canvas.height && myObstacles[i].image.src.includes("Big")) {
+            myCrators.push(new component(100, 40, ["assets/crater.png"], myObstacles[i].x, myGameArea.canvas.height - 41, "image"));
+            myObstacles.shift();
+        } else if ((myObstacles[i].y + myObstacles[i].height - 20) > myGameArea.canvas.height) {
             myObstacles.shift();
         }
 
