@@ -69,6 +69,7 @@ function startGame() {
     myGameArea.start();
 }
 
+// Draws both canvases that the play will use to interact with the game.
 var myGameArea = {
     backgroundCanvas : document.createElement("canvas"),
     canvas : document.createElement("canvas"),
@@ -112,6 +113,7 @@ var myGameArea = {
     }
 }
 
+// Creates canvas drawable components on to a given canvas
 function component(width, height, imageList, x, y, type) {
     this.type = type;
     if (type == "image") {
@@ -194,6 +196,10 @@ function component(width, height, imageList, x, y, type) {
     }
 }
 
+/* 
+ * DEPRECATED: Left for potential addition or re-use later.
+ * Function designed to change the background images during play.
+ */
 function updateBackground() {
     
     var cycleNum = Math.floor(myGameArea.frameCount / 50) % 6;
@@ -223,6 +229,11 @@ function updateBackground() {
     myGameArea.context2.drawImage(background, 0, 0, canvasWidth, canvasHeight);
 }
 
+/*
+ * Checks for end game conditions, then redraws the screen with the components
+ * in their updated positions. Also contains obstacle creations, and their 
+ * respective timing components.
+ */
 function updateGameArea() {
     var x, y, minHeight, maxHeight, randX;
 
@@ -303,7 +314,7 @@ function updateGameArea() {
     }
 
     // Big Meteor
-    if (myGameArea.frameNo > 8000 && timeInterval(Math.floor(Math.random*4000))){
+    if ((myGameArea.frameNo > 8000) && timeInterval(500)){
         randX = Math.floor(Math.random()*canvasWidth+150);
         if (useRandY){
             randY = Math.floor(Math.random()*(-1)*ObstacleHeight-200);
@@ -348,10 +359,14 @@ function updateGameArea() {
         } else if ((myObstacles[i].y + myObstacles[i].height - 20) > myGameArea.canvas.height) {
             myObstacles.shift();
         }
-
         myObstacles[i].update();                                    
     }
 
+    // Craters disapper after random amount of time (Generally Small)
+    if (timeInterval(400)){
+        myCrators.shift();
+    }
+    
     // Moves ground left to right
     for (i = 0; i < myGround.length; i++) {
         if (leftPressed){
@@ -390,6 +405,11 @@ function timeInterval(n) {
     return false;
 }
 
+/* 
+ * Sets the character game piece's jump acceleration and tracks the start of the jump
+ * animation, so that after a certain number of frames gravity will overtake the upward
+ * acceleration, and cause the character piece to begin to fall. 
+ */
 function accelerate(n) {
     // Disallows double jumping
     if (myGamePiece.y == myGameArea.canvas.height - myGamePiece.height - 20){
@@ -398,6 +418,10 @@ function accelerate(n) {
     }
 }
 
+/*
+ * Gets the key presses on a keyboard and passes them in to create motion.
+ * TO-DO: Add mobile key presses, and mobile overlay tie ins
+ */
 function checkKey(e){
     e = e || window.event;
     //console.log("Key code received = " + e.keyCode);
@@ -428,6 +452,12 @@ function checkKey(e){
     }
 }
 
+/*
+ * Flips the game piece image from left facing to right facing when opposite direction
+ * keys are pressed. 
+ * TO-DO: Potentially modify this for character running animations to select a different set
+ * of images to support animation sequences
+ */
 function flipCharImage(){
     var temp = myGamePiece.image.src;
     myGamePiece.image = new Image();
