@@ -303,7 +303,7 @@ function updateGameArea() {
     }
 
     // Big Meteor
-    if (timeInterval(500 /*Math.random*5000+2500*/)){
+    if (myGameArea.frameNo > 8000 && timeInterval(Math.floor(Math.random*4000))){
         randX = Math.floor(Math.random()*canvasWidth+150);
         if (useRandY){
             randY = Math.floor(Math.random()*(-1)*ObstacleHeight-200);
