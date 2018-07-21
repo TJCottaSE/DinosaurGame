@@ -16,28 +16,24 @@ canvas {
 }
 button {
     position: relative;
-    margin-top: 200px;
+    margin-top: 390px;
+    margin-left: 500px;
+}
+img {
+    width: 400px;
+    height: 150px;
 }
 </style>
 </head>
-<body onload="myGameArea.init()">
+<body onload="myGameArea.launch()">
     <!--This should be replaced with a title screen and appropriate buttons or selectors-->
-    <p>Jump over the obstacles. How long can you stay alive?</p>
-    <h2>Controls</h2>
-    <p>
-    Move Right: d, right arrow<br>
-    Move Left: a, left arrow<br>
-    Jump: w, up arrow, space bar<br>
-    Stop: s, down arrow<br>
-    </p>
-    <br>
+    <div id="canvases"></div>
     <div id="start">
-        <button onclick="startGame()">Start Game</button>
+        <button id="startButton" onclick="myGameArea.selectChar()" onmouseover="changeStart()" onmouseout="changeBack()"><img src="assets/startBtn.png"></button>
     </div>
     <br>
 
 <script>
-
     var myGamePiece;
     var myObstacles = [];
     var myGround = [];
@@ -70,27 +66,6 @@ button {
         jumpTime = 10;
     }
     
-    function showStartScreen() {
-
-    }
-
-    var myStartScreen = {
-
-        canvas : document.createElement("canvas"),
-
-        show : function() {
-            this.canvas.width = canvasWidth;
-            this.canvas.height = canvasHeight;
-            var ctx = this.canvas.getContext("2d");
-            var img = new Image();
-            img.onload = function() {
-                ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight);
-                document.body.insertBefore(this.canvas, document.body.childNodes[0]);
-            }
-            img.src = "assets/startScreen.jpg";
-        }
-    }
-
     function startGame() {
         myGamePiece = new component(GamePieceWidth, GamePieceHeight, ["assets/Dino-2-flipped.png", "assets/Dino-2.png"], canvasWidth/2, canvasHeight-25, "image");
         myGamePiece.gravity = 0.05;
@@ -101,35 +76,76 @@ button {
     
     // Draws both canvases that the play will use to interact with the game.
     var myGameArea = {
+        startCanvas : document.createElement("canvas"),
+        selectCanvas : document.createElement("canvas"),
         backgroundCanvas : document.createElement("canvas"),
         canvas : document.createElement("canvas"),
+        launch : function() {
+            // Draws the start Screen
+            this.startCanvas.width = canvasWidth;
+            this.startCanvas.height = canvasHeight;
+            this.startCanvas.setAttribute("id", "startScreen");
+            var ctx3 = this.startCanvas.getContext("2d");
+            var startCanvas2 = this.startCanvas;
+
+            var startScreen = new Image();
+            startScreen.src = "assets/startScreen.jpg";
+            startScreen.onload = function() {
+                ctx3.drawImage(startScreen, 0, 0, canvasWidth, canvasHeight);
+                var can = document.getElementById("canvases");
+                can.insertAdjacentElement("beforeend", startCanvas2);
+            }
+        },
+        selectChar : function() {
+            // Draws Select Character Screen
+            document.getElementById("canvases").innerHTML = "";
+            document.getElementById("start").innerHTML = "<button id=\"startButton\" onclick=\"myGameArea.init()\" onmouseover=\"changeStart()\" onmouseout=\"changeBack()\"><img src=\"assets/startBtn.png\"></button>";
+            this.selectCanvas.width = canvasWidth;
+            this.selectCanvas.height = canvasHeight;
+            this.selectCanvas.setAttribute("id", "selectScreen");
+            var ctx4 = this.selectCanvas.getContext("2d");
+            var charSelect = this.selectCanvas;
+
+            var selectScreen = new Image();
+            selectScreen.src = "assets/select.jpg";
+            selectScreen.onload = function() {
+                ctx4.drawImage(selectScreen, 0, 0, canvasWidth, canvasHeight);
+                var can = document.getElementById("canvases");
+                can.insertAdjacentElement("beforeend", charSelect);
+            }
+
+        },
         init : function() {
             // Draws the background canvas below the play canvas
+            document.getElementById("canvases").innerHTML = "";
+            document.getElementById("start").innerHTML = "";
             this.backgroundCanvas.width = canvasWidth;
             this.backgroundCanvas.height = canvasHeight;
+            this.backgroundCanvas.setAttribute("id", "background");
             var ctx2 = this.backgroundCanvas.getContext("2d");
             var backgroundCanvas2 = this.backgroundCanvas;
             this.context2 = ctx2;
             var background = new Image();
             background.onload = function() {
                 ctx2.drawImage(background, 0, 0, canvasWidth, canvasHeight);
-                document.body.insertBefore(backgroundCanvas2, document.body.childNodes[0]);
+                var can = document.getElementById("canvases");
+                can.insertAdjacentElement("afterbegin", backgroundCanvas2);
             }
             background.src = "assets/bg.jpg";
     
-            // Draw the Start Screen
-            
             // Draws the play canvas
             this.canvas.width = canvasWidth;
             this.canvas.height = canvasHeight;
+            this.canvas.setAttribute("id", "play");
             this.context = this.canvas.getContext("2d");
-            document.body.insertBefore(this.canvas, document.body.childNodes[1]);
+            var can = document.getElementById("canvases");
+            can.insertAdjacentElement("beforeend", this.canvas);
             this.frameNo = 0;
             this.frameCount = 0;
             for (var x = 0; x <= canvasWidth; x += 50){ // Draw the ground at the start of the stage.
                 myGround.push(new component(100, 40, ["assets/g1.png"], x, canvasHeight - 40, "image"));
             }
-            
+            startGame();
         },
         start : function() {
             // Every 10 ms update the game area
@@ -495,6 +511,18 @@ button {
         myGamePiece.image = new Image();
         myGamePiece.image.src = myGamePiece.altImageSrc;
         myGamePiece.altImageSrc = temp;
+    }
+
+    /* Start Button Related functions */
+    function changeStart() {
+        if (document.getElementById("startButton").innerHTML == "<img src=\"assets/startBtn.png\">"){
+            document.getElementById("startButton").innerHTML =  "<img src=\"assets/startBtn-mouseover.png\">"
+        } 
+    }
+    function changeBack() {
+        if (document.getElementById("startButton").innerHTML == "<img src=\"assets/startBtn-mouseover.png\">") {
+            document.getElementById("startButton").innerHTML = "<img src=\"assets/startBtn.png\">"
+        }
     }
     </script>
 </body>
