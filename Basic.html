@@ -16,466 +16,486 @@ canvas {
 }
 button {
     position: relative;
-    margin-top: 300px;
+    margin-top: 200px;
 }
 </style>
 </head>
 <body onload="myGameArea.init()">
-    <br>
-    <div id="start">
-        <button onclick="startGame()">Start Game</button>
-    </div>
-
-
-<script>
-
-var myGamePiece;
-var myObstacles = [];
-var myGround = [];
-var myCrators = [];
-var myScore;
-var myRound = 1;
-var centeredButton;
-var leftPressed = false;
-var rightPressed = false;
-var useRandY = false;  // Randomizes the y-coord for incoming meteors; Default = 0;
-var lastDirectionPressed;
-var jumpTime = 12; // This variable controls the number of frames that pass before gravity begins to pull down on the game piece
-
-const canvasHeight = 810; // Needs to be dynamically sized
-const canvasWidth = 1440; // Needs to be dynamically sized
-const roundDuration = 2000; // Controls the length of each stage based on number of frames traversed to the right
-var GamePieceWidth = canvasWidth/16;
-var GamePieceHeight = canvasHeight/9;
-var ObstacleWidth = canvasWidth/16;
-var ObstacleHeight = canvasHeight/9;
-
-// Change jump duration based on screen height
-if (canvasHeight < 300){
-    jumpTime = 6;
-}
-else if (canvasHeight < 600) {
-    jumpTime = 8;
-}
-else if (canvasHeight < 900) {
-    jumpTime = 10;
-}
-
-function startGame() {
-    myGamePiece = new component(GamePieceWidth, GamePieceHeight, ["assets/Dino-2-flipped.png", "assets/Dino-2.png"], canvasWidth/2, canvasHeight-25, "image");
-    myGamePiece.gravity = 0.05;
-    myScore = new component("30px", "Consolas", ["white"], 10, 30, "text", []);
-    document.getElementById("start").innerHTML = ""; //"<button onclick=\"accelerate(-0.5)\">Jump</button>";
-    myGameArea.start();
-}
-
-// Draws both canvases that the play will use to interact with the game.
-var myGameArea = {
-    backgroundCanvas : document.createElement("canvas"),
-    canvas : document.createElement("canvas"),
-    init : function() {
-        // Draws the background canvas below the play canvas
-        this.backgroundCanvas.width = canvasWidth;
-        this.backgroundCanvas.height = canvasHeight;
-        var ctx2 = this.backgroundCanvas.getContext("2d");
-        var backgroundCanvas2 = this.backgroundCanvas;
-        this.context2 = ctx2;
-        var background = new Image();
-        background.onload = function() {
-            ctx2.drawImage(background, 0, 0, canvasWidth, canvasHeight);
-            document.body.insertBefore(backgroundCanvas2, document.body.childNodes[0]);
-        }
-        background.src = "assets/bg.jpg";
-
-        // Draws the play canvas
-        this.canvas.width = canvasWidth;
-        this.canvas.height = canvasHeight;
-        this.context = this.canvas.getContext("2d");
-        document.body.insertBefore(this.canvas, document.body.childNodes[1]);
-        this.frameNo = 0;
-        this.frameCount = 0;
-        for (var x = 0; x <= canvasWidth; x += 50){ // Draw the ground at the start of the stage.
-            myGround.push(new component(100, 40, ["assets/g1.png"], x, canvasHeight - 40, "image"));
-        }
-        
-    },
-    start : function() {
-        // Every 10 ms update the game area
-        this.interval = setInterval(updateGameArea, 10);
-        //this.interval2 = setInterval(updateBackground, 500);
-    },
-    stop : function() {
-        clearInterval(this.interval);
-        clearInterval(this.interval2);
-    },
-    clear : function() {
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    }
-}
-
-// Creates canvas drawable components on to a given canvas
-function component(width, height, imageList, x, y, type) {
-    this.type = type;
-    if (type == "image") {
-        this.image = new Image();
-        this.image.src = imageList[0];
-    }
-    if (imageList.length > 1) {
-        this.altImageSrc = imageList[1];
-    }
-    
-    this.imageList = imageList;
-    this.score = 0;
-    this.width = width;
-    this.height = height;
-    this.speedX = 0;
-    this.speedY = 0;    
-    this.x = x;
-    this.y = y;
-    this.gravity = 0;
-    this.gravitySpeed = 0;
-    this.frameInitJump = 0;
-    // Draws the image
-    this.update = function() {
-        ctx = myGameArea.context;
-        if (this.type == "text") {
-            ctx.font = this.width + " " + this.height;
-            ctx.fillStyle = imageList[0];
-            ctx.fillText(this.text, this.x, this.y);
-        } else {
-            ctx.drawImage(this.image, 
-                this.x, 
-                this.y,
-                this.width, this.height);
-        }
-    }
-    // Changes the image's location
-    this.newPos = function() {
-        if (myGameArea.frameCount - this.frameInitJump > jumpTime) {this.gravity = 0.05}
-        this.gravitySpeed += this.gravity;
-        this.x += this.speedX;
-        this.y += this.speedY + this.gravitySpeed;
-        this.hitBottom();
-    }
-    // Stops the game piece at "ground level"
-    this.hitBottom = function() {
-        var rockbottom = myGameArea.canvas.height - this.height - 20;
-        if (this.y > rockbottom) {
-            this.y = rockbottom;
-            this.gravitySpeed = 0;
-        }
-    }
-    // Controls the crash into object mechanism
-    this.crashWith = function(otherobj, strict) {
-        var myleft = this.x;
-        var myright = this.x + (this.width);
-        var mytop = this.y;
-        var mybottom = this.y + (this.height);
-        var otherleft = otherobj.x;
-        var otherright = otherobj.x + (otherobj.width);
-        var othertop = otherobj.y;
-        var otherbottom = otherobj.y + (otherobj.height);
-        var crash = true;
-        if (!strict){
-            if ( (mybottom < (othertop + (canvasHeight/32))) || // Allow for visual overlap before crashing
-                (mytop > (otherbottom - (canvasHeight/64))) || 
-                (myright < (otherleft + (canvasWidth/96))) || 
-                (myleft > (otherright - (canvasWidth/96))) ){
-
-                    crash = false;
-            }
-        } else {
-            if ( mybottom < othertop ||
-                mytop > otherbottom ||
-                myright < (otherleft + (canvasWidth/96)) ||
-                myleft > (otherright - (canvasWidth/96))) {
-                    crash = false;
-                }
-        }
-        return crash;
-    }
-}
-
-/* 
- * DEPRECATED: Left for potential addition or re-use later.
- * Function designed to change the background images during play.
- */
-function updateBackground() {
-    
-    var cycleNum = Math.floor(myGameArea.frameCount / 50) % 6;
-    //console.log("myGameArea.frameCount/10 = " + myGameArea.frameCount/10);
-    //console.log("cycleNum = " + cycleNum);
-    background = new Image();
-    switch (cycleNum){
-        case 0:
-            background.src = "assets/bg1.jpg";
-            break;
-        case 1:
-            background.src = "assets/bg2.jpg";
-            break;
-        case 2:
-            background.src = "assets/bg3.jpg";
-            break;
-        case 3:
-            background.src = "assets/bg4.jpg";
-            break;
-        case 4:
-            background.src = "assets/bg5.jpg";
-            break;
-        case 5:
-            background.src = "assets/bg6.jpg";
-            break;
-    }
-    myGameArea.context2.drawImage(background, 0, 0, canvasWidth, canvasHeight);
-}
-
-/*
- * Checks for end game conditions, then redraws the screen with the components
- * in their updated positions. Also contains obstacle creations, and their 
- * respective timing components.
- */
-function updateGameArea() {
-    var x, y, minHeight, maxHeight, randX;
-
-    // Check end condition with obstacle crash
-    for (i = 0; i < myObstacles.length; i += 1) {
-        if (myGamePiece.crashWith(myObstacles[i])) {
-            // Show Game Over message
-            console.log("Game Over!!!!!! Crashed with Meteor");
-            console.log("myGamePiece.x = " + myGamePiece.x + " myGamePiece.y = " + myGamePiece.y + " myGamePiece.x+width = " + (myGamePiece.x + GamePieceWidth) + " myGamePiece.y+height = " + (myGamePiece.y + GamePieceHeight));
-            console.log("obstacle.x = " + myObstacles[i].x + " obstacle.y = " + myObstacles[i].y + " obstacle.x+width = " + (myObstacles[i].x + ObstacleWidth) + " obstacle.y+height = " + (myObstacles[i].y + ObstacleHeight));
-            var gameOver = new component("30px", "Consolas", ["white"], canvasWidth/2 - 50, canvasHeight/2, "text", []);
-            gameOver.text = "GAME OVER";
-            gameOver.update();
-            myScore.x = canvasWidth / 2 - 50;
-            myScore.y = canvasHeight / 2 + 30;
-            myScore.update();
-            myGameArea.stop();
-            // End
-            return;
-        } else if (myGameArea.frameNo % roundDuration == 0){
-            // Advance to next level
-            myRound = (myGameArea.frameNo / roundDuration) + 1;
-        }
-    }
-
-    // Check end condition with crater crash
-    for (j = 0; j < myCrators.length; j += 1){
-        if (myGamePiece.crashWith(myCrators[j], true)){
-            console.log("Game Over - Crashed with Crator")
-            var gameOver = new component("30px", "Consolas", ["white"], canvasWidth/2 - 50, canvasHeight/2, "text", []);
-            gameOver.text = "GAME OVER";
-            gameOver.update();
-            myScore.x = canvasWidth / 2 - 50;
-            myScore.y = canvasHeight / 2 + 30;
-            myScore.update();
-            myGameArea.stop();
-            // End
-            return;
-        }
-    }
-
-    myGameArea.clear();
-    document.onkeydown = checkKey;
-    myGameArea.frameCount += 1;
-
-    if (leftPressed){
-        myGameArea.frameNo += -1;
-    }
-    if (rightPressed){
-        myGameArea.frameNo += 1;
-    }
-    
-    // Draw Ground Components as screen scrolls
-    if (frameInterval(50)) { 
-        x = myGameArea.canvas.width;
-        y = myGameArea.canvas.height;
-        myGround.push(new component(100, 40, ["assets/g1.png"], x, y - 40, "image", []));
-    }
-
-    // Small Meteors
-    if (timeInterval(200)) {
-        if (myGameArea.frameNo != 0){
-            for (i = 0; i < myRound; i++){
-                /* Two times the width of a meteor obstacle, added to the canvas width
-                 * to allow the meteor's starting x position to occur outside the view
-                 *     mwCANVASmw
-                 */
-                randX = Math.floor(Math.random()*canvasWidth+ObstacleWidth);
-                if (useRandY){
-                    randY = Math.floor(Math.random()*(-1)*ObstacleHeight-ObstacleHeight);
-                } else {
-                    randY = (-1)*(ObstacleHeight);
-                }
-                // consider using randY for more difficulty
-                myObstacles.push(new component(50, 150, ["assets/Meteor.png", "assets/Meteor-flipped.png"], randX, randY, "image"));
-            }
-        }
-    }
-
-    // Big Meteor
-    if ((myGameArea.frameNo > 8000) && timeInterval(500)){
-        randX = Math.floor(Math.random()*canvasWidth+150);
-        if (useRandY){
-            randY = Math.floor(Math.random()*(-1)*ObstacleHeight-200);
-        } else {
-            randY = (-1)*(ObstacleHeight);
-        }
-        myObstacles.push(new component(150, 200, ["assets/Bigmeteor1.png", "assets/Bigmeteor2.png", "assets/Bigmeteor3.png", "assets/Bigmeteor4.png"], randX, randY, "image"));
-    }
-
-    // Moves Obstacles 
-    for (i = 0; i < myObstacles.length; i += 1) {
-        if (leftPressed){
-            myObstacles[i].x += 1;
-        }
-        if (rightPressed){
-            myObstacles[i].x += -1;
-        }
-
-        // Obstacles continue to fall even when character has stopped moving
-        myObstacles[i].y += +1;
-
-        // Flip the image to create spiraling effect
-        if (myObstacles[i].y % 15 == 0){
-            var temp = myObstacles[i].image.src;
-            var current = temp.split("/assets");
-
-            var tempList = myObstacles[i].imageList;
-            var index;
-            for (j = 0; j < tempList.length; j += 1){
-                if (temp.includes(tempList[j])) {
-                    index = j + 1;
-                }
-            }
-            myObstacles[i].image = new Image();
-            myObstacles[i].image.src = tempList[index % tempList.length];
-        }
-        
-        // Meteor disappear after rock crosses ground
-        if ( (myObstacles[i].y + myObstacles[i].height - 20) > myGameArea.canvas.height && myObstacles[i].image.src.includes("Big")) {
-            myCrators.push(new component(100, 40, ["assets/crater.png"], myObstacles[i].x, myGameArea.canvas.height - 41, "image"));
-            myObstacles.shift();
-        } else if ((myObstacles[i].y + myObstacles[i].height - 20) > myGameArea.canvas.height) {
-            myObstacles.shift();
-        }
-        myObstacles[i].update();                                    
-    }
-
-    // Craters disapper after random amount of time (Generally Small)
-    if (timeInterval(400)){
-        myCrators.shift();
-    }
-    
-    // Moves ground left to right
-    for (i = 0; i < myGround.length; i++) {
-        if (leftPressed){
-            myGround[i].x += 1;
-        }
-        if (rightPressed){
-            myGround[i].x += -1;
-        }
-        myGround[i].update();
-    }
-
-    // Moves Crators left to right
-    for(i = 0; i < myCrators.length; i += 1){
-        if (leftPressed){
-            myCrators[i].x += 1;
-        }
-        if (rightPressed){
-            myCrators[i].x += -1;
-        }
-        myCrators[i].update();
-    }
-    
-    myScore.text="SCORE: " + myGameArea.frameNo;
-    myScore.update();
-    myGamePiece.newPos();
-    myGamePiece.update();
-}
-
-function frameInterval(n) {
-    if ((myGameArea.frameNo / n) % 1 == 0) {return true;}
-    return false;
-}
-
-function timeInterval(n) {
-    if ((myGameArea.frameCount / n) % 1 == 0) {return true;}
-    return false;
-}
-
-/* 
- * Sets the character game piece's jump acceleration and tracks the start of the jump
- * animation, so that after a certain number of frames gravity will overtake the upward
- * acceleration, and cause the character piece to begin to fall. 
- */
-function accelerate(n) {
-    // Disallows double jumping
-    if (myGamePiece.y == myGameArea.canvas.height - myGamePiece.height - 20){
-        myGamePiece.gravity = n;
-        myGamePiece.frameInitJump = myGameArea.frameCount;
-    }
-}
-
-/*
- * Gets the key presses on a keyboard and passes them in to create motion.
- * TO-DO: Add mobile key presses, and mobile overlay tie ins
- */
-function checkKey(e){
-    e = e || window.event;
-    //console.log("Key code received = " + e.keyCode);
-    if (e.keyCode == '38' || e.keyCode == '32' || e.keyCode == '87'){  // JUMP!!
-        // Up arrow || space bar || 'w' pressed
-        accelerate(-0.5);
-    }
-    else if (e.keyCode == '40' || e.keyCode == '83'){ // Stop Moving, Stand Still
-        // down arrow || 's' pressed
-        leftPressed = false;
-        rightPressed = false;
-    }
-    else if (e.keyCode == '37' || e.keyCode == '65'){ // Move character left
-        // left arrow or 'a' pressed
-        leftPressed = true;
-        rightPressed = false;
-        if (!myGamePiece.image.src.includes("flipped")){
-            flipCharImage();
-        }
-    }
-    else if (e.keyCode == '39' || e.keyCode == '68'){ // Move character right
-        // right arrow  or 'd' pressed
-        rightPressed = true;
-        leftPressed = false;
-        if (myGamePiece.image.src.includes("flipped")){
-            flipCharImage();
-        }
-    }
-}
-
-/*
- * Flips the game piece image from left facing to right facing when opposite direction
- * keys are pressed. 
- * TO-DO: Potentially modify this for character running animations to select a different set
- * of images to support animation sequences
- */
-function flipCharImage(){
-    var temp = myGamePiece.image.src;
-    myGamePiece.image = new Image();
-    myGamePiece.image.src = myGamePiece.altImageSrc;
-    myGamePiece.altImageSrc = temp;
-}
-</script>
-
-<br>
-
-<p>Jump over the obstacles. How long can you stay alive?</p>
-<h2>Controls</h2>
-<p>
+    <!--This should be replaced with a title screen and appropriate buttons or selectors-->
+    <p>Jump over the obstacles. How long can you stay alive?</p>
+    <h2>Controls</h2>
+    <p>
     Move Right: d, right arrow<br>
     Move Left: a, left arrow<br>
     Jump: w, up arrow, space bar<br>
     Stop: s, down arrow<br>
-</p>
+    </p>
+    <br>
+    <div id="start">
+        <button onclick="startGame()">Start Game</button>
+    </div>
+    <br>
 
+<script>
+
+    var myGamePiece;
+    var myObstacles = [];
+    var myGround = [];
+    var myCrators = [];
+    var myScore;
+    var myRound = 1;
+    var centeredButton;
+    var leftPressed = false;
+    var rightPressed = false;
+    var useRandY = false;  // Randomizes the y-coord for incoming meteors; Default = 0;
+    var lastDirectionPressed;
+    var jumpTime = 12; // This variable controls the number of frames that pass before gravity begins to pull down on the game piece
+    
+    const canvasHeight = 810; // Needs to be dynamically sized
+    const canvasWidth = 1440; // Needs to be dynamically sized
+    const roundDuration = 2000; // Controls the length of each stage based on number of frames traversed to the right
+    var GamePieceWidth = canvasWidth/16;
+    var GamePieceHeight = canvasHeight/9;
+    var ObstacleWidth = canvasWidth/16;
+    var ObstacleHeight = canvasHeight/9;
+    
+    // Change jump duration based on screen height
+    if (canvasHeight < 300){
+        jumpTime = 6;
+    }
+    else if (canvasHeight < 600) {
+        jumpTime = 8;
+    }
+    else if (canvasHeight < 900) {
+        jumpTime = 10;
+    }
+    
+    function showStartScreen() {
+
+    }
+
+    var myStartScreen = {
+
+        canvas : document.createElement("canvas"),
+
+        show : function() {
+            this.canvas.width = canvasWidth;
+            this.canvas.height = canvasHeight;
+            var ctx = this.canvas.getContext("2d");
+            var img = new Image();
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight);
+                document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+            }
+            img.src = "assets/startScreen.jpg";
+        }
+    }
+
+    function startGame() {
+        myGamePiece = new component(GamePieceWidth, GamePieceHeight, ["assets/Dino-2-flipped.png", "assets/Dino-2.png"], canvasWidth/2, canvasHeight-25, "image");
+        myGamePiece.gravity = 0.05;
+        myScore = new component("30px", "Consolas", ["white"], 10, 30, "text", []);
+        document.getElementById("start").innerHTML = ""; //"<button onclick=\"accelerate(-0.5)\">Jump</button>";
+        myGameArea.start();
+    }
+    
+    // Draws both canvases that the play will use to interact with the game.
+    var myGameArea = {
+        backgroundCanvas : document.createElement("canvas"),
+        canvas : document.createElement("canvas"),
+        init : function() {
+            // Draws the background canvas below the play canvas
+            this.backgroundCanvas.width = canvasWidth;
+            this.backgroundCanvas.height = canvasHeight;
+            var ctx2 = this.backgroundCanvas.getContext("2d");
+            var backgroundCanvas2 = this.backgroundCanvas;
+            this.context2 = ctx2;
+            var background = new Image();
+            background.onload = function() {
+                ctx2.drawImage(background, 0, 0, canvasWidth, canvasHeight);
+                document.body.insertBefore(backgroundCanvas2, document.body.childNodes[0]);
+            }
+            background.src = "assets/bg.jpg";
+    
+            // Draw the Start Screen
+            
+            // Draws the play canvas
+            this.canvas.width = canvasWidth;
+            this.canvas.height = canvasHeight;
+            this.context = this.canvas.getContext("2d");
+            document.body.insertBefore(this.canvas, document.body.childNodes[1]);
+            this.frameNo = 0;
+            this.frameCount = 0;
+            for (var x = 0; x <= canvasWidth; x += 50){ // Draw the ground at the start of the stage.
+                myGround.push(new component(100, 40, ["assets/g1.png"], x, canvasHeight - 40, "image"));
+            }
+            
+        },
+        start : function() {
+            // Every 10 ms update the game area
+            this.interval = setInterval(updateGameArea, 10);
+            //this.interval2 = setInterval(updateBackground, 500);
+        },
+        stop : function() {
+            clearInterval(this.interval);
+            clearInterval(this.interval2);
+        },
+        clear : function() {
+            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+    }
+    
+    // Creates canvas drawable components on to a given canvas
+    function component(width, height, imageList, x, y, type) {
+        this.type = type;
+        if (type == "image") {
+            this.image = new Image();
+            this.image.src = imageList[0];
+        }
+        if (imageList.length > 1) {
+            this.altImageSrc = imageList[1];
+        }
+        
+        this.imageList = imageList;
+        this.score = 0;
+        this.width = width;
+        this.height = height;
+        this.speedX = 0;
+        this.speedY = 0;    
+        this.x = x;
+        this.y = y;
+        this.gravity = 0;
+        this.gravitySpeed = 0;
+        this.frameInitJump = 0;
+        // Draws the image
+        this.update = function() {
+            ctx = myGameArea.context;
+            if (this.type == "text") {
+                ctx.font = this.width + " " + this.height;
+                ctx.fillStyle = imageList[0];
+                ctx.fillText(this.text, this.x, this.y);
+            } else {
+                ctx.drawImage(this.image, 
+                    this.x, 
+                    this.y,
+                    this.width, this.height);
+            }
+        }
+        // Changes the image's location
+        this.newPos = function() {
+            if (myGameArea.frameCount - this.frameInitJump > jumpTime) {this.gravity = 0.05}
+            this.gravitySpeed += this.gravity;
+            this.x += this.speedX;
+            this.y += this.speedY + this.gravitySpeed;
+            this.hitBottom();
+        }
+        // Stops the game piece at "ground level"
+        this.hitBottom = function() {
+            var rockbottom = myGameArea.canvas.height - this.height - 20;
+            if (this.y > rockbottom) {
+                this.y = rockbottom;
+                this.gravitySpeed = 0;
+            }
+        }
+        // Controls the crash into object mechanism
+        this.crashWith = function(otherobj, strict) {
+            var myleft = this.x;
+            var myright = this.x + (this.width);
+            var mytop = this.y;
+            var mybottom = this.y + (this.height);
+            var otherleft = otherobj.x;
+            var otherright = otherobj.x + (otherobj.width);
+            var othertop = otherobj.y;
+            var otherbottom = otherobj.y + (otherobj.height);
+            var crash = true;
+            if (!strict){
+                if ( (mybottom < (othertop + (canvasHeight/32))) || // Allow for visual overlap before crashing
+                    (mytop > (otherbottom - (canvasHeight/64))) || 
+                    (myright < (otherleft + (canvasWidth/96))) || 
+                    (myleft > (otherright - (canvasWidth/96))) ){
+    
+                        crash = false;
+                }
+            } else {
+                if ( mybottom < othertop ||
+                    mytop > otherbottom ||
+                    myright < (otherleft + (canvasWidth/96)) ||
+                    myleft > (otherright - (canvasWidth/96))) {
+                        crash = false;
+                    }
+            }
+            return crash;
+        }
+    }
+    
+    /* 
+     * DEPRECATED: Left for potential addition or re-use later.
+     * Function designed to change the background images during play.
+     */
+    function updateBackground() {
+        
+        var cycleNum = Math.floor(myGameArea.frameCount / 50) % 6;
+        //console.log("myGameArea.frameCount/10 = " + myGameArea.frameCount/10);
+        //console.log("cycleNum = " + cycleNum);
+        background = new Image();
+        switch (cycleNum){
+            case 0:
+                background.src = "assets/bg1.jpg";
+                break;
+            case 1:
+                background.src = "assets/bg2.jpg";
+                break;
+            case 2:
+                background.src = "assets/bg3.jpg";
+                break;
+            case 3:
+                background.src = "assets/bg4.jpg";
+                break;
+            case 4:
+                background.src = "assets/bg5.jpg";
+                break;
+            case 5:
+                background.src = "assets/bg6.jpg";
+                break;
+        }
+        myGameArea.context2.drawImage(background, 0, 0, canvasWidth, canvasHeight);
+    }
+    
+    /*
+     * Checks for end game conditions, then redraws the screen with the components
+     * in their updated positions. Also contains obstacle creations, and their 
+     * respective timing components.
+     */
+    function updateGameArea() {
+        var x, y, minHeight, maxHeight, randX;
+    
+        // Check end condition with obstacle crash
+        for (i = 0; i < myObstacles.length; i += 1) {
+            if (myGamePiece.crashWith(myObstacles[i])) {
+                // Show Game Over message
+                console.log("Game Over!!!!!! Crashed with Meteor");
+                console.log("myGamePiece.x = " + myGamePiece.x + " myGamePiece.y = " + myGamePiece.y + " myGamePiece.x+width = " + (myGamePiece.x + GamePieceWidth) + " myGamePiece.y+height = " + (myGamePiece.y + GamePieceHeight));
+                console.log("obstacle.x = " + myObstacles[i].x + " obstacle.y = " + myObstacles[i].y + " obstacle.x+width = " + (myObstacles[i].x + ObstacleWidth) + " obstacle.y+height = " + (myObstacles[i].y + ObstacleHeight));
+                var gameOver = new component("30px", "Consolas", ["white"], canvasWidth/2 - 50, canvasHeight/2, "text", []);
+                gameOver.text = "GAME OVER";
+                gameOver.update();
+                myScore.x = canvasWidth / 2 - 50;
+                myScore.y = canvasHeight / 2 + 30;
+                myScore.update();
+                myGameArea.stop();
+                // End
+                return;
+            } else if (myGameArea.frameNo % roundDuration == 0){
+                // Advance to next level
+                myRound = (myGameArea.frameNo / roundDuration) + 1;
+            }
+        }
+    
+        // Check end condition with crater crash
+        for (j = 0; j < myCrators.length; j += 1){
+            if (myGamePiece.crashWith(myCrators[j], true)){
+                console.log("Game Over - Crashed with Crator")
+                var gameOver = new component("30px", "Consolas", ["white"], canvasWidth/2 - 50, canvasHeight/2, "text", []);
+                gameOver.text = "GAME OVER";
+                gameOver.update();
+                myScore.x = canvasWidth / 2 - 50;
+                myScore.y = canvasHeight / 2 + 30;
+                myScore.update();
+                myGameArea.stop();
+                // End
+                return;
+            }
+        }
+    
+        myGameArea.clear();
+        document.onkeydown = checkKey;
+        myGameArea.frameCount += 1;
+    
+        if (leftPressed){
+            myGameArea.frameNo += -1;
+        }
+        if (rightPressed){
+            myGameArea.frameNo += 1;
+        }
+        
+        // Draw Ground Components as screen scrolls
+        if (frameInterval(50)) { 
+            x = myGameArea.canvas.width;
+            y = myGameArea.canvas.height;
+            myGround.push(new component(100, 40, ["assets/g1.png"], x, y - 40, "image", []));
+        }
+    
+        // Small Meteors
+        if (timeInterval(200)) {
+            if (myGameArea.frameNo != 0){
+                for (i = 0; i < myRound; i++){
+                    /* Two times the width of a meteor obstacle, added to the canvas width
+                     * to allow the meteor's starting x position to occur outside the view
+                     *     mwCANVASmw
+                     */
+                    randX = Math.floor(Math.random()*canvasWidth+ObstacleWidth);
+                    if (useRandY){
+                        randY = Math.floor(Math.random()*(-1)*ObstacleHeight-ObstacleHeight);
+                    } else {
+                        randY = (-1)*(ObstacleHeight);
+                    }
+                    // consider using randY for more difficulty
+                    myObstacles.push(new component(50, 150, ["assets/Meteor.png", "assets/Meteor-flipped.png"], randX, randY, "image"));
+                }
+            }
+        }
+    
+        // Big Meteor
+        if ((myGameArea.frameNo > 8000) && timeInterval(500)){
+            randX = Math.floor(Math.random()*canvasWidth+150);
+            if (useRandY){
+                randY = Math.floor(Math.random()*(-1)*ObstacleHeight-200);
+            } else {
+                randY = (-1)*(ObstacleHeight);
+            }
+            myObstacles.push(new component(150, 200, ["assets/Bigmeteor1.png", "assets/Bigmeteor2.png", "assets/Bigmeteor3.png", "assets/Bigmeteor4.png"], randX, randY, "image"));
+        }
+    
+        // Moves Obstacles 
+        for (i = 0; i < myObstacles.length; i += 1) {
+            if (leftPressed){
+                myObstacles[i].x += 1;
+            }
+            if (rightPressed){
+                myObstacles[i].x += -1;
+            }
+    
+            // Obstacles continue to fall even when character has stopped moving
+            myObstacles[i].y += +1;
+    
+            // Flip the image to create spiraling effect
+            if (myObstacles[i].y % 15 == 0){
+                var temp = myObstacles[i].image.src;
+                var current = temp.split("/assets");
+    
+                var tempList = myObstacles[i].imageList;
+                var index;
+                for (j = 0; j < tempList.length; j += 1){
+                    if (temp.includes(tempList[j])) {
+                        index = j + 1;
+                    }
+                }
+                myObstacles[i].image = new Image();
+                myObstacles[i].image.src = tempList[index % tempList.length];
+            }
+            
+            // Meteor disappear after rock crosses ground
+            if ( (myObstacles[i].y + myObstacles[i].height - 20) > myGameArea.canvas.height && myObstacles[i].image.src.includes("Big")) {
+                myCrators.push(new component(100, 40, ["assets/crater.png"], myObstacles[i].x, myGameArea.canvas.height - 41, "image"));
+                myObstacles.shift();
+            } else if ((myObstacles[i].y + myObstacles[i].height - 20) > myGameArea.canvas.height) {
+                myObstacles.shift();
+            }
+            myObstacles[i].update();                                    
+        }
+    
+        // Craters disapper after random amount of time (Generally Small)
+        if (timeInterval(400)){
+            myCrators.shift();
+        }
+        
+        // Moves ground left to right
+        for (i = 0; i < myGround.length; i++) {
+            if (leftPressed){
+                myGround[i].x += 1;
+            }
+            if (rightPressed){
+                myGround[i].x += -1;
+            }
+            myGround[i].update();
+        }
+    
+        // Moves Crators left to right
+        for(i = 0; i < myCrators.length; i += 1){
+            if (leftPressed){
+                myCrators[i].x += 1;
+            }
+            if (rightPressed){
+                myCrators[i].x += -1;
+            }
+            myCrators[i].update();
+        }
+        
+        myScore.text="SCORE: " + myGameArea.frameNo;
+        myScore.update();
+        myGamePiece.newPos();
+        myGamePiece.update();
+    }
+    
+    function frameInterval(n) {
+        if ((myGameArea.frameNo / n) % 1 == 0) {return true;}
+        return false;
+    }
+    
+    function timeInterval(n) {
+        if ((myGameArea.frameCount / n) % 1 == 0) {return true;}
+        return false;
+    }
+    
+    /* 
+     * Sets the character game piece's jump acceleration and tracks the start of the jump
+     * animation, so that after a certain number of frames gravity will overtake the upward
+     * acceleration, and cause the character piece to begin to fall. 
+     */
+    function accelerate(n) {
+        // Disallows double jumping
+        if (myGamePiece.y == myGameArea.canvas.height - myGamePiece.height - 20){
+            myGamePiece.gravity = n;
+            myGamePiece.frameInitJump = myGameArea.frameCount;
+        }
+    }
+    
+    /*
+     * Gets the key presses on a keyboard and passes them in to create motion.
+     * TO-DO: Add mobile key presses, and mobile overlay tie ins
+     */
+    function checkKey(e){
+        e = e || window.event;
+        //console.log("Key code received = " + e.keyCode);
+        if (e.keyCode == '38' || e.keyCode == '32' || e.keyCode == '87'){  // JUMP!!
+            // Up arrow || space bar || 'w' pressed
+            accelerate(-0.5);
+        }
+        else if (e.keyCode == '40' || e.keyCode == '83'){ // Stop Moving, Stand Still
+            // down arrow || 's' pressed
+            leftPressed = false;
+            rightPressed = false;
+        }
+        else if (e.keyCode == '37' || e.keyCode == '65'){ // Move character left
+            // left arrow or 'a' pressed
+            leftPressed = true;
+            rightPressed = false;
+            if (!myGamePiece.image.src.includes("flipped")){
+                flipCharImage();
+            }
+        }
+        else if (e.keyCode == '39' || e.keyCode == '68'){ // Move character right
+            // right arrow  or 'd' pressed
+            rightPressed = true;
+            leftPressed = false;
+            if (myGamePiece.image.src.includes("flipped")){
+                flipCharImage();
+            }
+        }
+    }
+    
+    /*
+     * Flips the game piece image from left facing to right facing when opposite direction
+     * keys are pressed. 
+     * TO-DO: Potentially modify this for character running animations to select a different set
+     * of images to support animation sequences
+     */
+    function flipCharImage(){
+        var temp = myGamePiece.image.src;
+        myGamePiece.image = new Image();
+        myGamePiece.image.src = myGamePiece.altImageSrc;
+        myGamePiece.altImageSrc = temp;
+    }
+    </script>
 </body>
 </html>
