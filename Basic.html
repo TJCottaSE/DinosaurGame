@@ -47,7 +47,7 @@ canvas {
     var centeredButton;
     var leftPressed = false;
     var rightPressed = false;
-    var useRandY = false;  // Randomizes the y-coord for incoming meteors; Default = 0;
+    var useRandY = true;  // Randomizes the y-coord for incoming meteors; Default = false;
     var lastDirectionPressed;
     var jumpTime = 12; // This variable controls the number of frames that pass before gravity begins to pull down on the game piece
     
@@ -202,7 +202,7 @@ canvas {
         },
         start : function() {
             // Every 10 ms update the game area
-            this.interval = setInterval(updateGameArea, 10);
+            this.interval = setInterval(updateGameArea, 6);
             //this.interval2 = setInterval(updateBackground, 500);
         },
         stop : function() {
@@ -402,7 +402,7 @@ canvas {
                      * to allow the meteor's starting x position to occur outside the view
                      *     mwCANVASmw
                      */
-                    randX = Math.floor(Math.random()*canvasWidth+ObstacleWidth);
+                    randX = Math.floor(Math.random()*(canvasWidth+ObstacleWidth*5));
                     if (useRandY){
                         randY = Math.floor(Math.random()*(-1)*ObstacleHeight-ObstacleHeight);
                     } else {
