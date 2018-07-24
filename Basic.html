@@ -47,14 +47,15 @@ canvas {
     var centeredButton;
     var leftPressed = false;
     var rightPressed = false;
-    var useRandY = true;  // Randomizes the y-coord for incoming meteors; Default = false;
-    var lastDirectionPressed;
-    var jumpTime = 12; // This variable controls the number of frames that pass before gravity begins to pull down on the game piece
-    
-    const canvasHeight = 810; // Needs to be dynamically sized
-    const canvasWidth = 1440; // Needs to be dynamically sized
-    const roundDuration = 2000; // Controls the length of each stage based on number of frames traversed to the right
-    var GamePieceCharacter = 2; // Controls which character image will be displayed as the game piece
+    var downPressed = false;
+    var useRandY = true;                        // Randomizes the y-coord for incoming meteors; Default = false;
+    var jumpTime = 12;                          // This variable controls the number of frames that pass before gravity begins to pull down on the game piece
+    var deathAnimation = false;                 // Switch that controls the playing of the death animation
+    var deathFrameNo;                           // Used to allow frameNo continuance during death animation
+    const canvasHeight = 810;                   // Needs to be dynamically sized
+    const canvasWidth = 1440;                   // Needs to be dynamically sized
+    const roundDuration = 2000;                 // Controls the length of each stage based on number of frames traversed to the right
+    var GamePieceCharacter = 2;                 // Controls which character image will be displayed as the game piece
     var GamePieceWidth = canvasWidth/16;
     var GamePieceHeight = canvasHeight/9;
     var ObstacleWidth = canvasWidth/16;
@@ -72,7 +73,7 @@ canvas {
     }
     
     function startGame() {
-        var gamePieceImages = [];
+        var gamePieceImages = [];   // Images that are used for the player character
         switch(GamePieceCharacter){
             case 1:
                 gamePieceImages = ["assets/Dino-1-flipped.png", "assets/Dino-1.png"];
@@ -81,7 +82,7 @@ canvas {
                 gamePieceImages = ["assets/Dino-2-flipped.png", "assets/Dino-2.png"];
                 break;
             case 3: 
-                gamePieceImages = ["assets/Dino-3-flipped.png", "assets/Dino-3.png"];
+                gamePieceImages = ["assets/Dino-3.1-flipped.png", "assets/Dino-3.1.png"];
                 break;
             case 4: 
                 gamePieceImages = ["assets/Dino-4-flipped.png", "assets/Dino-4.png"];
@@ -96,11 +97,11 @@ canvas {
         myGamePiece = new component(GamePieceWidth, GamePieceHeight, gamePieceImages, canvasWidth/2, canvasHeight-25, "image");
         myGamePiece.gravity = 0.05;
         myScore = new component("30px", "Consolas", ["white"], 10, 30, "text", []);
-        document.getElementById("start").innerHTML = ""; //"<button onclick=\"accelerate(-0.5)\">Jump</button>";
+        document.getElementById("start").innerHTML = "";
         myGameArea.start();
     }
     
-    // Draws both canvases that the play will use to interact with the game.
+    // Draws both canvases that the player will use to interact with the game.
     var myGameArea = {
         startCanvas : document.createElement("canvas"),
         selectCanvas : document.createElement("canvas"),
@@ -153,7 +154,7 @@ canvas {
             dino2 = dino2 + widthSelectorPos + "px;top:";
             dino2 = dino2 + heightSelectorPos + "px;z-index:10;\"></button>";
 
-            var dino3 = "<button onclick=\"setDino(3)\"><img src=\"assets/Dino-3.png\" width=\"" + Math.floor(canvasWidth/8) + "\" height=\"" + Math.floor(canvasHeight/4.5) + "\" class=\"selected\" style=";
+            var dino3 = "<button onclick=\"setDino(3)\"><img src=\"assets/Dino-3.1.png\" width=\"" + Math.floor(canvasWidth/8) + "\" height=\"" + Math.floor(canvasHeight/4.5) + "\" class=\"selected\" style=";
             dino3 = dino3 + "position:absolute;left:"
             dino3 = dino3 + widthSelectorPos*2 + "px;top:";
             dino3 = dino3 + heightSelectorPos + "px;z-index:10;\"></button>";
@@ -203,7 +204,7 @@ canvas {
             can.insertAdjacentElement("beforeend", this.canvas);
             this.frameNo = 0;
             this.frameCount = 0;
-            for (var x = 0; x <= canvasWidth; x += 50){ // Draw the ground at the start of the stage.
+            for (var x = -200; x <= canvasWidth; x += 50){ // Draw the ground at the start of the stage.
                 myGround.push(new component(100, 40, ["assets/g1.png"], x, canvasHeight - 40, "image"));
             }
             startGame();
@@ -266,6 +267,12 @@ canvas {
             this.y += this.speedY + this.gravitySpeed;
             this.hitBottom();
         }
+        this.die = function() {
+            if (myGameArea.frameCount - this.frameInitJump > jumpTime) {this.gravity = 0.05}
+            this.gravitySpeed += this.gravity;
+            this.x += this.speedX;
+            this.y += this.speedY + this.gravitySpeed;
+        }
         // Stops the game piece at "ground level"
         this.hitBottom = function() {
             var rockbottom = myGameArea.canvas.height - this.height - 20;
@@ -290,7 +297,6 @@ canvas {
                     (mytop > (otherbottom - (canvasHeight/64))) || 
                     (myright < (otherleft + (canvasWidth/96))) || 
                     (myleft > (otherright - (canvasWidth/96))) ){
-    
                         crash = false;
                 }
             } else {
@@ -299,7 +305,7 @@ canvas {
                     myright < (otherleft + (canvasWidth/96)) ||
                     myleft > (otherright - (canvasWidth/96))) {
                         crash = false;
-                    }
+                }
             }
             return crash;
         }
@@ -345,26 +351,36 @@ canvas {
      */
     function updateGameArea() {
         var x, y, minHeight, maxHeight, randX;
-
-        // Prevent backward travel for too long at game beginning
-        if (myGameArea.frameNo < -100){
-            var gameOver = new component("30px", "Consolas", ["white"], canvasWidth/2 - 50, canvasHeight/2, "text", []);
-            gameOver.text = "GAME OVER";
-            gameOver.update();
-            myScore.x = canvasWidth / 2 - 50;
-            myScore.y = canvasHeight / 2 + 30;
-            myScore.update();
-            myGameArea.stop();
-            return;
-        }
-
-        // Check end condition with obstacle crash
-        for (i = 0; i < myObstacles.length; i += 1) {
-            if (myGamePiece.crashWith(myObstacles[i])) {
-                // Show Game Over message
-                console.log("Game Over!!!!!! Crashed with Meteor");
-                //console.log("myGamePiece.x = " + myGamePiece.x + " myGamePiece.y = " + myGamePiece.y + " myGamePiece.x+width = " + (myGamePiece.x + GamePieceWidth) + " myGamePiece.y+height = " + (myGamePiece.y + GamePieceHeight));
-                //console.log("obstacle.x = " + myObstacles[i].x + " obstacle.y = " + myObstacles[i].y + " obstacle.x+width = " + (myObstacles[i].x + ObstacleWidth) + " obstacle.y+height = " + (myObstacles[i].y + ObstacleHeight));
+        // Shows the death animation
+        if (deathAnimation) {
+            // Stop all obstacles falling and ground scrolling
+            if (leftPressed){
+                myGameArea.frameNo += 1;
+                for (i = 0; i < myObstacles.length; i++){
+                    myObstacles[i].x += -1;
+                    myObstacles[i].y += -1;
+                }
+                for (j = 0; j < myGround.length; j++){
+                    myGround[j].x += -1;
+                }
+            }
+            if (rightPressed){
+                myGameArea.frameNo += 1;
+                for (i = 0; i < myObstacles.length; i++){
+                    myObstacles[i].x += 1;
+                    myObstacles[i].y += -1;
+                }
+                for (j = 0; j < myGround.length; j++){
+                    myGround[j].x += 1;
+                }
+            }
+            if (downPressed){
+                for (k = 0; k < myObstacles.length; k++){
+                    myObstacles[k].y += -1;
+                }
+            }
+            
+            if (myGamePiece.y > canvasHeight){
                 var gameOver = new component("30px", "Consolas", ["white"], canvasWidth/2 - 50, canvasHeight/2, "text", []);
                 gameOver.text = "GAME OVER";
                 gameOver.update();
@@ -372,8 +388,23 @@ canvas {
                 myScore.y = canvasHeight / 2 + 30;
                 myScore.update();
                 myGameArea.stop();
-                // End
-                return;
+                return;                                 // TAP INTO GAME OVER HERE FOR HI-SCORE
+            }
+        }
+
+        // Prevent backward travel for too long at game beginning
+        if (myGameArea.frameNo < -100){
+            deathAnimation = true;
+        }
+
+        // Check end condition with obstacle crash
+        for (i = 0; i < myObstacles.length; i += 1) {
+            if (myGamePiece.crashWith(myObstacles[i])) {
+                deathAnimation = true;
+                // Show Game Over message
+                console.log("Game Over!!!!!! Crashed with Meteor");
+                //console.log("myGamePiece.x = " + myGamePiece.x + " myGamePiece.y = " + myGamePiece.y + " myGamePiece.x+width = " + (myGamePiece.x + GamePieceWidth) + " myGamePiece.y+height = " + (myGamePiece.y + GamePieceHeight));
+                //console.log("obstacle.x = " + myObstacles[i].x + " obstacle.y = " + myObstacles[i].y + " obstacle.x+width = " + (myObstacles[i].x + ObstacleWidth) + " obstacle.y+height = " + (myObstacles[i].y + ObstacleHeight));
             } else if (myGameArea.frameNo % roundDuration == 0){
                 // Advance to next difficulty
                 myRound = (myGameArea.frameNo / roundDuration) + 1;
@@ -383,16 +414,8 @@ canvas {
         // Check end condition with crater crash
         for (j = 0; j < myCrators.length; j += 1){
             if (myGamePiece.crashWith(myCrators[j], true)){
+                deathAnimation = true;
                 console.log("Game Over - Crashed with Crator")
-                var gameOver = new component("30px", "Consolas", ["white"], canvasWidth/2 - 50, canvasHeight/2, "text", []);
-                gameOver.text = "GAME OVER";
-                gameOver.update();
-                myScore.x = canvasWidth / 2 - 50;
-                myScore.y = canvasHeight / 2 + 30;
-                myScore.update();
-                myGameArea.stop();
-                // End
-                return;
             }
         }
     
@@ -408,34 +431,29 @@ canvas {
         }
         
         // Draw Ground Components as screen scrolls
-        if (frameInterval(50)) { 
+        if (frameInterval(50) && !deathAnimation) { 
             x = myGameArea.canvas.width;
             y = myGameArea.canvas.height;
             myGround.push(new component(100, 40, ["assets/g1.png"], x, y - 40, "image", []));
         }
     
         // Small Meteors
-        if (timeInterval(200)) {
+        if (timeInterval(200) && !deathAnimation) {
             if (myGameArea.frameNo != 0){
                 for (i = 0; i < myRound; i++){
-                    /* Two times the width of a meteor obstacle, added to the canvas width
-                     * to allow the meteor's starting x position to occur outside the view
-                     *     mwCANVASmw
-                     */
                     randX = Math.floor(Math.random()*(canvasWidth+ObstacleWidth*5));
                     if (useRandY){
                         randY = Math.floor(Math.random()*(-1)*ObstacleHeight-ObstacleHeight);
                     } else {
                         randY = (-1)*(ObstacleHeight);
                     }
-                    // consider using randY for more difficulty
                     myObstacles.push(new component(50, 150, ["assets/Meteor.png", "assets/Meteor-flipped.png"], randX, randY, "image"));
                 }
             }
         }
     
         // Big Meteor
-        if ((myGameArea.frameNo > 8000) && timeInterval(500)){
+        if ((myGameArea.frameNo > 8000) && timeInterval(500) && !deathAnimation){
             randX = Math.floor(Math.random()*canvasWidth+150);
             if (useRandY){
                 randY = Math.floor(Math.random()*(-1)*ObstacleHeight-200);
@@ -510,9 +528,14 @@ canvas {
             myCrators[i].update();
         }
         
-        myScore.text="SCORE: " + myGameArea.frameNo;
+        if (!deathAnimation){
+            myScore.text="SCORE: " + myGameArea.frameNo;
+            myGamePiece.newPos();
+        } else {
+            myGamePiece.die();
+        }
         myScore.update();
-        myGamePiece.newPos();
+        
         myGamePiece.update();
     }
     
@@ -554,11 +577,13 @@ canvas {
             // down arrow || 's' pressed
             leftPressed = false;
             rightPressed = false;
+            downPressed = true;
         }
         else if (e.keyCode == '37' || e.keyCode == '65'){ // Move character left
             // left arrow or 'a' pressed
             leftPressed = true;
             rightPressed = false;
+            downPressed = false;
             if (!myGamePiece.image.src.includes("flipped")){
                 flipCharImage();
             }
@@ -567,6 +592,7 @@ canvas {
             // right arrow  or 'd' pressed
             rightPressed = true;
             leftPressed = false;
+            downPressed = false;
             if (myGamePiece.image.src.includes("flipped")){
                 flipCharImage();
             }
@@ -575,7 +601,7 @@ canvas {
     
     function setDino(num) {
         GamePieceCharacter = num;
-        var selector = num - 2;
+        var selector = num - 1;
         document.getElementById("selectors").childNodes[selector].childNodes[0].style.border = "solid white";
         var numCharacters = document.getElementById("selectors").childElementCount;
         for (i = 0; i < numCharacters; i++) {
