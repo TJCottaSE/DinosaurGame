@@ -74,6 +74,9 @@ canvas {
     function startGame() {
         var gamePieceImages = [];
         switch(GamePieceCharacter){
+            case 1:
+                gamePieceImages = ["assets/Dino-1-flipped.png", "assets/Dino-1.png"];
+                break;
             case 2:
                 gamePieceImages = ["assets/Dino-2-flipped.png", "assets/Dino-2.png"];
                 break;
@@ -141,31 +144,36 @@ canvas {
             var heightSelectorPos = canvasHeight - Math.floor(canvasHeight/4.5) - 5;
             var widthSelectorPos = Math.floor(canvasWidth/8) + 50;
             // Draw the dinos as a button
+            var dino1 = "<button onclick=\"setDino(1)\"><img src=\"assets/Dino-1.png\" width=\"" + Math.floor(canvasWidth/8) + "\" height=\"" + Math.floor(canvasHeight/4.5) + "\" class=\"selected\" style=";
+            dino1 = dino1 + "position:absolute;left:20px;top:";
+            dino1 = dino1 + heightSelectorPos + "px;z-index:10;\"></button>";
+
             var dino2 = "<button onclick=\"setDino(2)\"><img src=\"assets/Dino-2.png\" width=\"" + Math.floor(canvasWidth/8) + "\" height=\"" + Math.floor(canvasHeight/4.5) + "\" class=\"selected\" style=";
-            dino2 = dino2 + "position:absolute;left:10px;top:";
+            dino2 = dino2 + "position:absolute;left:" 
+            dino2 = dino2 + widthSelectorPos + "px;top:";
             dino2 = dino2 + heightSelectorPos + "px;z-index:10;\"></button>";
 
             var dino3 = "<button onclick=\"setDino(3)\"><img src=\"assets/Dino-3.png\" width=\"" + Math.floor(canvasWidth/8) + "\" height=\"" + Math.floor(canvasHeight/4.5) + "\" class=\"selected\" style=";
             dino3 = dino3 + "position:absolute;left:"
-            dino3 = dino3 + widthSelectorPos + "px;top:";
+            dino3 = dino3 + widthSelectorPos*2 + "px;top:";
             dino3 = dino3 + heightSelectorPos + "px;z-index:10;\"></button>";
 
             var dino4 = "<button onclick=\"setDino(4)\"><img src=\"assets/Dino-4.png\" width=\"" + Math.floor(canvasWidth/8) + "\" height=\"" + Math.floor(canvasHeight/4.5) + "\" class=\"selected\" style=";
             dino4 = dino4 + "position:absolute;left:"
-            dino4 = dino4 + widthSelectorPos*2 + "px;top:";
+            dino4 = dino4 + widthSelectorPos*3 + "px;top:";
             dino4 = dino4 + heightSelectorPos + "px;z-index:10;\"></button>";
 
             var dino5 = "<button onclick=\"setDino(5)\"><img src=\"assets/Dino-5.png\" width=\"" + Math.floor(canvasWidth/8) + "\" height=\"" + Math.floor(canvasHeight/4.5) + "\" class=\"selected\" style=";
             dino5 = dino5 + "position:absolute;left:"
-            dino5 = dino5 + widthSelectorPos*3 + "px;top:";
+            dino5 = dino5 + widthSelectorPos*4 + "px;top:";
             dino5 = dino5 + heightSelectorPos + "px;z-index:10;\"></button>";
 
             var dino6 = "<button onclick=\"setDino(6)\"><img src=\"assets/Dino-6.png\" width=\"" + Math.floor(canvasWidth/8) + "\" height=\"" + Math.floor(canvasHeight/4.5) + "\" class=\"selected\" style=";
             dino6 = dino6 + "position:absolute;left:"
-            dino6 = dino6 + widthSelectorPos*4 + "px;top:";
+            dino6 = dino6 + widthSelectorPos*5 + "px;top:";
             dino6 = dino6 + heightSelectorPos + "px;z-index:10;\"></button>";
 
-            document.getElementById("selectors").innerHTML = dino2 + dino3 + dino4 + dino5 + dino6;
+            document.getElementById("selectors").innerHTML = dino1 + dino2 + dino3 + dino4 + dino5 + dino6;
         },
         // Draws the background canvas below the play canvas
         init : function() {
@@ -337,14 +345,26 @@ canvas {
      */
     function updateGameArea() {
         var x, y, minHeight, maxHeight, randX;
-    
+
+        // Prevent backward travel for too long at game beginning
+        if (myGameArea.frameNo < -100){
+            var gameOver = new component("30px", "Consolas", ["white"], canvasWidth/2 - 50, canvasHeight/2, "text", []);
+            gameOver.text = "GAME OVER";
+            gameOver.update();
+            myScore.x = canvasWidth / 2 - 50;
+            myScore.y = canvasHeight / 2 + 30;
+            myScore.update();
+            myGameArea.stop();
+            return;
+        }
+
         // Check end condition with obstacle crash
         for (i = 0; i < myObstacles.length; i += 1) {
             if (myGamePiece.crashWith(myObstacles[i])) {
                 // Show Game Over message
                 console.log("Game Over!!!!!! Crashed with Meteor");
-                console.log("myGamePiece.x = " + myGamePiece.x + " myGamePiece.y = " + myGamePiece.y + " myGamePiece.x+width = " + (myGamePiece.x + GamePieceWidth) + " myGamePiece.y+height = " + (myGamePiece.y + GamePieceHeight));
-                console.log("obstacle.x = " + myObstacles[i].x + " obstacle.y = " + myObstacles[i].y + " obstacle.x+width = " + (myObstacles[i].x + ObstacleWidth) + " obstacle.y+height = " + (myObstacles[i].y + ObstacleHeight));
+                //console.log("myGamePiece.x = " + myGamePiece.x + " myGamePiece.y = " + myGamePiece.y + " myGamePiece.x+width = " + (myGamePiece.x + GamePieceWidth) + " myGamePiece.y+height = " + (myGamePiece.y + GamePieceHeight));
+                //console.log("obstacle.x = " + myObstacles[i].x + " obstacle.y = " + myObstacles[i].y + " obstacle.x+width = " + (myObstacles[i].x + ObstacleWidth) + " obstacle.y+height = " + (myObstacles[i].y + ObstacleHeight));
                 var gameOver = new component("30px", "Consolas", ["white"], canvasWidth/2 - 50, canvasHeight/2, "text", []);
                 gameOver.text = "GAME OVER";
                 gameOver.update();
@@ -355,7 +375,7 @@ canvas {
                 // End
                 return;
             } else if (myGameArea.frameNo % roundDuration == 0){
-                // Advance to next level
+                // Advance to next difficulty
                 myRound = (myGameArea.frameNo / roundDuration) + 1;
             }
         }
