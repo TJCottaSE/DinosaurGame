@@ -32,7 +32,7 @@ canvas {
     <!--This should be replaced with a title screen and appropriate buttons or selectors-->
     <div id="canvases"></div>
     <div id="start">
-        <button id="startButton" onclick="myGameArea.selectChar()" onmouseover="changeStart()" onmouseout="changeBack()"><img src="assets/startBtn.png" id="start"></button>
+        <button id="startButton" onclick="myGameArea.selectChar()" onmouseover="changeStart()" onmouseout="changeBack()"><img src="https://static.wixstatic.com/media/2a9d29_2a4ff41712a44c17be550d04ba5c739e~mv2.png/v1/fill/w_600,h_231,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_2a4ff41712a44c17be550d04ba5c739e~mv2.webp" id="start"></button>
     </div>
     <div id="selectors"></div>
     <br>
@@ -61,6 +61,41 @@ canvas {
     var ObstacleWidth = canvasWidth/16;
     var ObstacleHeight = canvasHeight/9;
     
+    // HardCode static image paths becuase WIX is stupid
+    const startBtn = "https://static.wixstatic.com/media/2a9d29_2a4ff41712a44c17be550d04ba5c739e~mv2.png/v1/fill/w_600,h_231,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_2a4ff41712a44c17be550d04ba5c739e~mv2.webp";
+    const startBtnMouseOver = "https://static.wixstatic.com/media/2a9d29_1e2556205d2a4de1a74dec19340e924f~mv2.png/v1/fill/w_600,h_231,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_1e2556205d2a4de1a74dec19340e924f~mv2.webp";
+    const startScreenL = "https://static.wixstatic.com/media/2a9d29_ac59cbf48f25415aa51f2d6854504859~mv2_d_3298_1897_s_2.jpg/v1/fill/w_600,h_345,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_ac59cbf48f25415aa51f2d6854504859~mv2_d_3298_1897_s_2.webp";
+    const selectScreenL = "https://static.wixstatic.com/media/2a9d29_f1c60ca75de344cabfdfb7c7e2c5009d~mv2_d_3298_1897_s_2.jpg/v1/fill/w_600,h_345,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_f1c60ca75de344cabfdfb7c7e2c5009d~mv2_d_3298_1897_s_2.webp";
+    const meteorFlipped = "https://static.wixstatic.com/media/2a9d29_376ef0824efa4cc99797dd56f1ecadcb~mv2.png/v1/fill/w_236,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_376ef0824efa4cc99797dd56f1ecadcb~mv2.webp";
+    const meteor = "https://static.wixstatic.com/media/2a9d29_b20462b7577d4a8bbab8b8fa0eb8e727~mv2.png/v1/fill/w_236,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_b20462b7577d4a8bbab8b8fa0eb8e727~mv2.webp";
+    const groundL = "https://static.wixstatic.com/media/2a9d29_ec28e6dcab134527be09921192a2707f~mv2.png/v1/fill/w_600,h_168,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_ec28e6dcab134527be09921192a2707f~mv2.webp";
+    const dino6flipped = "https://static.wixstatic.com/media/2a9d29_37657adb707e43bdbe7269c9af77c18a~mv2.png/v1/fill/w_523,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_37657adb707e43bdbe7269c9af77c18a~mv2.webp";
+    const dino6L = "https://static.wixstatic.com/media/2a9d29_9311fb3fad3940c4b39999af6d0f1dd2~mv2.png/v1/fill/w_523,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_9311fb3fad3940c4b39999af6d0f1dd2~mv2.webp";
+    const dino5flipped = "https://static.wixstatic.com/media/2a9d29_014cf3d3527f47cb84c298e971d436df~mv2.png/v1/fill/w_506,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_014cf3d3527f47cb84c298e971d436df~mv2.webp";
+    const dino5L = "https://static.wixstatic.com/media/2a9d29_b1f807aa2feb4ec794b9a86d73e95ada~mv2.png/v1/fill/w_506,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_b1f807aa2feb4ec794b9a86d73e95ada~mv2.webp";
+    const dino4flipped = "https://static.wixstatic.com/media/2a9d29_16a13fb714c940039ac0f66295a435dd~mv2.png/v1/fill/w_600,h_395,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_16a13fb714c940039ac0f66295a435dd~mv2.webp";
+    const dino4L = "https://static.wixstatic.com/media/2a9d29_b4d74c7a746e41f39d55f989e2735a5b~mv2.png/v1/fill/w_600,h_395,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_b4d74c7a746e41f39d55f989e2735a5b~mv2.webp";
+    const dino3flipped_A = "https://static.wixstatic.com/media/2a9d29_d749320b36d142559cebccf3a319d11f~mv2_d_2040_2726_s_2.png/v1/fill/w_449,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_d749320b36d142559cebccf3a319d11f~mv2_d_2040_2726_s_2.webp";
+    const dino3L_A = "https://static.wixstatic.com/media/2a9d29_e597783dea694e96a2628ec673f39cf1~mv2_d_2040_2726_s_2.png/v1/fill/w_449,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_e597783dea694e96a2628ec673f39cf1~mv2_d_2040_2726_s_2.webp";
+    const dino3flipped_B = "https://static.wixstatic.com/media/2a9d29_35cc29c25f57478dbc429a01cd651cf2~mv2_d_2040_2726_s_2.png/v1/fill/w_449,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_35cc29c25f57478dbc429a01cd651cf2~mv2_d_2040_2726_s_2.webp";
+    const dino3L_B = "https://static.wixstatic.com/media/2a9d29_25998c8d077a48cda24f0f19613125bd~mv2_d_2040_2726_s_2.png/v1/fill/w_449,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_25998c8d077a48cda24f0f19613125bd~mv2_d_2040_2726_s_2.webp";
+    const dino3flipped_C = "https://static.wixstatic.com/media/2a9d29_90b99b2c250c4e6fbd42b522e88c6d05~mv2_d_2040_2726_s_2.png/v1/fill/w_449,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_90b99b2c250c4e6fbd42b522e88c6d05~mv2_d_2040_2726_s_2.webp";
+    const dino3L_C = "https://static.wixstatic.com/media/2a9d29_96d26e107f9d477c9afff729966516ee~mv2_d_2040_2726_s_2.png/v1/fill/w_449,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_96d26e107f9d477c9afff729966516ee~mv2_d_2040_2726_s_2.webp";
+    const dino2flipped_A = "https://static.wixstatic.com/media/2a9d29_05d59b3409f74beba0a9ac9c495a29e5~mv2.png/v1/fill/w_501,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_05d59b3409f74beba0a9ac9c495a29e5~mv2.webp";
+    const dino2L_A = "https://static.wixstatic.com/media/2a9d29_d66cafa3297446aeb93bbb3b8444f7a6~mv2.png/v1/fill/w_501,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_d66cafa3297446aeb93bbb3b8444f7a6~mv2.webp";
+    const dino2flipped_B = "https://static.wixstatic.com/media/2a9d29_1b3c284021fe46efba262db02def0063~mv2.png/v1/fill/w_494,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_1b3c284021fe46efba262db02def0063~mv2.webp";
+    const dino2L_B = "https://static.wixstatic.com/media/2a9d29_f7574ff0e4904dad822800497f298d9a~mv2.png/v1/fill/w_494,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_f7574ff0e4904dad822800497f298d9a~mv2.webp";
+    const dino2flipped_C = "https://static.wixstatic.com/media/2a9d29_6227d70717ed45fc886b1d6a51b85d79~mv2.png/v1/fill/w_497,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_6227d70717ed45fc886b1d6a51b85d79~mv2.webp";    
+    const dino2L_C = "https://static.wixstatic.com/media/2a9d29_078aec7d2fd34b99963c939f59b39d58~mv2.png/v1/fill/w_497,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_078aec7d2fd34b99963c939f59b39d58~mv2.webp";
+    const dino1flipped = "https://static.wixstatic.com/media/2a9d29_615cb8d236e446708bc9c31e81a342d6~mv2_d_2324_2780_s_2.png/v1/fill/w_501,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_615cb8d236e446708bc9c31e81a342d6~mv2_d_2324_2780_s_2.webp";
+    const dino1L_A = "https://static.wixstatic.com/media/2a9d29_5341a508d07141fa825e4f0b6c8cabfe~mv2_d_2324_2780_s_2.png/v1/fill/w_501,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_5341a508d07141fa825e4f0b6c8cabfe~mv2_d_2324_2780_s_2.webp";
+    const craterL = "https://static.wixstatic.com/media/2a9d29_544c88bc0f3949788b5779fa35fca348~mv2.png/v1/fill/w_600,h_334,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_544c88bc0f3949788b5779fa35fca348~mv2.webp";
+    const playBG = "https://static.wixstatic.com/media/2a9d29_043089066aa54486b58dcb3b1c7fa642~mv2_d_3992_2500_s_4_2.jpg/v1/fill/w_600,h_375,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_043089066aa54486b58dcb3b1c7fa642~mv2_d_3992_2500_s_4_2.webp";
+    const bigMeteor1 = "https://static.wixstatic.com/media/2a9d29_5ce81558fa4948b18142036ff790c4a3~mv2.png/v1/fill/w_405,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_5ce81558fa4948b18142036ff790c4a3~mv2.webp";
+    const bigMeteor2 = "https://static.wixstatic.com/media/2a9d29_7aad96fdb30d4c2b8d913486898ca064~mv2.png/v1/fill/w_405,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_7aad96fdb30d4c2b8d913486898ca064~mv2.webp";
+    const bigMeteor3 = "https://static.wixstatic.com/media/2a9d29_38a047a268714b1ba50f519777e62eee~mv2.png/v1/fill/w_405,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_38a047a268714b1ba50f519777e62eee~mv2.webp";
+    const bigMeteor4 = "https://static.wixstatic.com/media/2a9d29_d2fd2dae786f493ab9ddc7f73c193425~mv2.png/v1/fill/w_405,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_d2fd2dae786f493ab9ddc7f73c193425~mv2.webp";
+
     // Change jump duration based on screen height
     if (canvasHeight < 300){
         jumpTime = 6;
@@ -76,22 +111,22 @@ canvas {
         var gamePieceImages = [];   // Images that are used for the player character
         switch(GamePieceCharacter){
             case 1:
-                gamePieceImages = ["assets/Dino-1-flipped.png", "assets/Dino-1.png"];
+                gamePieceImages = [dino1flipped, dino1L_A];
                 break;
             case 2:
-                gamePieceImages = ["assets/Dino-2.1-flipped.png", "assets/Dino-2.1.png"];
+                gamePieceImages = [dino2L_A, dino2L_B, dino2L_C, dino2flipped_A, dino2flipped_B, dino2flipped_C];
                 break;
             case 3: 
-                gamePieceImages = ["assets/Dino-3.1-flipped.png", "assets/Dino-3.1.png"];
+                gamePieceImages = [dino3L_A, dino3L_B, dino3L_C, dino3flipped_A, dino3flipped_B, dino3flipped_C];  // <-- Note the order of the images
                 break;
             case 4: 
-                gamePieceImages = ["assets/Dino-4-flipped.png", "assets/Dino-4.png"];
+                gamePieceImages = [dino4flipped, dino4L];
                 break;
             case 5: 
-                gamePieceImages = ["assets/Dino-5-flipped.png", "assets/Dino-5.png"];
+                gamePieceImages = [dino5flipped, dino5L];
                 break;
             case 6: 
-                gamePieceImages = ["assets/Dino-6-flipped.png", "assets/Dino-6.png"];
+                gamePieceImages = [dino6flipped, dino6L];
                 break;
         }
         myGamePiece = new component(GamePieceWidth, GamePieceHeight, gamePieceImages, canvasWidth/2, canvasHeight-25, "image");
@@ -116,7 +151,7 @@ canvas {
             var startCanvas2 = this.startCanvas;
 
             var startScreen = new Image();
-            startScreen.src = "assets/startScreen.jpg";
+            startScreen.src = startScreenL;
             startScreen.onload = function() {
                 ctx3.drawImage(startScreen, 0, 0, canvasWidth, canvasHeight);
                 var can = document.getElementById("canvases");
@@ -126,7 +161,7 @@ canvas {
         // Draws Select Character Screen
         selectChar : function() {
             document.getElementById("canvases").innerHTML = "";
-            document.getElementById("start").innerHTML = "<button id=\"startButton\" onclick=\"myGameArea.init()\" onmouseover=\"changeStart()\" onmouseout=\"changeBack()\"><img src=\"assets/startBtn.png\" id=\"start\"></button>";
+            document.getElementById("start").innerHTML = "<button id=\"startButton\" onclick=\"myGameArea.init()\" onmouseover=\"changeStart()\" onmouseout=\"changeBack()\"><img src=" + startBtn + " id=\"start\"></button>";
             this.selectCanvas.width = canvasWidth;
             this.selectCanvas.height = canvasHeight;
             this.selectCanvas.setAttribute("id", "selectScreen");
@@ -134,7 +169,7 @@ canvas {
             var charSelect = this.selectCanvas;
 
             var selectScreen = new Image();
-            selectScreen.src = "assets/select.jpg";
+            selectScreen.src = selectScreenL;
             selectScreen.onload = function() {
                 ctx4.drawImage(selectScreen, 0, 0, canvasWidth, canvasHeight);
                 var can = document.getElementById("canvases");
@@ -145,31 +180,31 @@ canvas {
             var heightSelectorPos = canvasHeight - Math.floor(canvasHeight/4.5) - 5;
             var widthSelectorPos = Math.floor(canvasWidth/8) + 50;
             // Draw the dinos as a button
-            var dino1 = "<button onclick=\"setDino(1)\"><img src=\"assets/Dino-1.png\" width=\"" + Math.floor(canvasWidth/8) + "\" height=\"" + Math.floor(canvasHeight/4.5) + "\" class=\"selected\" style=";
+            var dino1 = "<button onclick=\"setDino(1)\"><img src=" + dino1L_A + " width=\"" + Math.floor(canvasWidth/8) + "\" height=\"" + Math.floor(canvasHeight/4.5) + "\" class=\"selected\" style=";
             dino1 = dino1 + "position:absolute;left:20px;top:";
             dino1 = dino1 + heightSelectorPos + "px;z-index:10;\"></button>";
 
-            var dino2 = "<button onclick=\"setDino(2)\"><img src=\"assets/Dino-2.1.png\" width=\"" + Math.floor(canvasWidth/8) + "\" height=\"" + Math.floor(canvasHeight/4.5) + "\" class=\"selected\" style=";
+            var dino2 = "<button onclick=\"setDino(2)\"><img src=" + dino2L_A + " width=\"" + Math.floor(canvasWidth/8) + "\" height=\"" + Math.floor(canvasHeight/4.5) + "\" class=\"selected\" style=";
             dino2 = dino2 + "position:absolute;left:" 
             dino2 = dino2 + widthSelectorPos + "px;top:";
             dino2 = dino2 + heightSelectorPos + "px;z-index:10;\"></button>";
 
-            var dino3 = "<button onclick=\"setDino(3)\"><img src=\"assets/Dino-3.1.png\" width=\"" + Math.floor(canvasWidth/8) + "\" height=\"" + Math.floor(canvasHeight/4.5) + "\" class=\"selected\" style=";
+            var dino3 = "<button onclick=\"setDino(3)\"><img src=" + dino3L_A + " width=\"" + Math.floor(canvasWidth/8) + "\" height=\"" + Math.floor(canvasHeight/4.5) + "\" class=\"selected\" style=";
             dino3 = dino3 + "position:absolute;left:"
             dino3 = dino3 + widthSelectorPos*2 + "px;top:";
             dino3 = dino3 + heightSelectorPos + "px;z-index:10;\"></button>";
 
-            var dino4 = "<button onclick=\"setDino(4)\"><img src=\"assets/Dino-4.png\" width=\"" + Math.floor(canvasWidth/8) + "\" height=\"" + Math.floor(canvasHeight/4.5) + "\" class=\"selected\" style=";
+            var dino4 = "<button onclick=\"setDino(4)\"><img src=" + dino4L + " width=\"" + Math.floor(canvasWidth/8) + "\" height=\"" + Math.floor(canvasHeight/4.5) + "\" class=\"selected\" style=";
             dino4 = dino4 + "position:absolute;left:"
             dino4 = dino4 + widthSelectorPos*3 + "px;top:";
             dino4 = dino4 + heightSelectorPos + "px;z-index:10;\"></button>";
 
-            var dino5 = "<button onclick=\"setDino(5)\"><img src=\"assets/Dino-5.png\" width=\"" + Math.floor(canvasWidth/8) + "\" height=\"" + Math.floor(canvasHeight/4.5) + "\" class=\"selected\" style=";
+            var dino5 = "<button onclick=\"setDino(5)\"><img src=" + dino5L + " width=\"" + Math.floor(canvasWidth/8) + "\" height=\"" + Math.floor(canvasHeight/4.5) + "\" class=\"selected\" style=";
             dino5 = dino5 + "position:absolute;left:"
             dino5 = dino5 + widthSelectorPos*4 + "px;top:";
             dino5 = dino5 + heightSelectorPos + "px;z-index:10;\"></button>";
 
-            var dino6 = "<button onclick=\"setDino(6)\"><img src=\"assets/Dino-6.png\" width=\"" + Math.floor(canvasWidth/8) + "\" height=\"" + Math.floor(canvasHeight/4.5) + "\" class=\"selected\" style=";
+            var dino6 = "<button onclick=\"setDino(6)\"><img src=" + dino6L + " width=\"" + Math.floor(canvasWidth/8) + "\" height=\"" + Math.floor(canvasHeight/4.5) + "\" class=\"selected\" style=";
             dino6 = dino6 + "position:absolute;left:"
             dino6 = dino6 + widthSelectorPos*5 + "px;top:";
             dino6 = dino6 + heightSelectorPos + "px;z-index:10;\"></button>";
@@ -193,7 +228,7 @@ canvas {
                 var can = document.getElementById("canvases");
                 can.insertAdjacentElement("afterbegin", backgroundCanvas2);
             }
-            background.src = "assets/bg.jpg";
+            background.src = playBG;
     
             // Draws the play canvas
             this.canvas.width = canvasWidth;
@@ -205,7 +240,7 @@ canvas {
             this.frameNo = 0;
             this.frameCount = 0;
             for (var x = -200; x <= canvasWidth; x += 50){ // Draw the ground at the start of the stage.
-                myGround.push(new component(100, 40, ["assets/g1.png"], x, canvasHeight - 40, "image"));
+                myGround.push(new component(100, 40, [groundL], x, canvasHeight - 40, "image"));
             }
             startGame();
         },
@@ -230,8 +265,12 @@ canvas {
             this.image = new Image();
             this.image.src = imageList[0];
         }
-        if (imageList.length > 1) {
+        if (imageList.length > 1 && imageList <= 4) {
             this.altImageSrc = imageList[1];
+        }
+        if (imageList.length > 4){
+            this.eastImages = [imageList[0], imageList[1], imageList[2]];
+            this.westImages = [imageList[3], imageList[4], imageList[5]];
         }
         
         this.imageList = imageList;
@@ -248,11 +287,11 @@ canvas {
         // Draws the image
         this.update = function() {
             ctx = myGameArea.context;
-            if (this.type == "text") {
+            if (this.type == "text") {                      // Used for writing the Score
                 ctx.font = this.width + " " + this.height;
                 ctx.fillStyle = imageList[0];
                 ctx.fillText(this.text, this.x, this.y);
-            } else {
+            } else {                                        // Used for all other game objects
                 ctx.drawImage(this.image, 
                     this.x, 
                     this.y,
@@ -267,6 +306,7 @@ canvas {
             this.y += this.speedY + this.gravitySpeed;
             this.hitBottom();
         }
+
         this.die = function() {
             if (myGameArea.frameCount - this.frameInitJump > jumpTime) {this.gravity = 0.05}
             this.gravitySpeed += this.gravity;
@@ -434,9 +474,27 @@ canvas {
         if (frameInterval(50) && !deathAnimation) { 
             x = myGameArea.canvas.width;
             y = myGameArea.canvas.height;
-            myGround.push(new component(100, 40, ["assets/g1.png"], x, y - 40, "image", []));
+            myGround.push(new component(100, 40, [groundL], x, y - 40, "image", []));
         }
     
+        // Add Character leg movement                                                                           // May need work
+        // Requires that All east facing character images are in postion 0-2 of the imageList array upon creation
+        // Also requires that All west facing character images are in postion 3-5 of the imageList array upon creation
+        if (frameInterval(10)){
+            if (!leftPressed && !downPressed){
+                var eastImgIndex = myGamePiece.eastImages.indexOf(myGamePiece.image.src);
+                eastImgIndex++;
+                myGamePiece.image = new Image();
+                myGamePiece.image.src = myGamePiece.eastImages[eastImgIndex % myGamePiece.eastImages.length];
+            }
+            else if (!rightPressed && !downPressed){
+                var westImgIndex = myGamePiece.westImages.indexOf(myGamePiece.image.src);
+                westImgIndex++;
+                myGamePiece.image = new Image();
+                myGamePiece.image.src = myGamePiece.westImages[westImgIndex % myGamePiece.westImages.length];
+            }
+        }
+
         // Small Meteors
         if (timeInterval(200) && !deathAnimation) {
             if (myGameArea.frameNo != 0){
@@ -447,7 +505,7 @@ canvas {
                     } else {
                         randY = (-1)*(ObstacleHeight);
                     }
-                    myObstacles.push(new component(50, 150, ["assets/Meteor.png", "assets/Meteor-flipped.png"], randX, randY, "image"));
+                    myObstacles.push(new component(50, 150, [meteor, meteorFlipped], randX, randY, "image"));
                 }
             }
         }
@@ -460,7 +518,7 @@ canvas {
             } else {
                 randY = (-1)*(ObstacleHeight);
             }
-            myObstacles.push(new component(150, 200, ["assets/Bigmeteor1.png", "assets/Bigmeteor2.png", "assets/Bigmeteor3.png", "assets/Bigmeteor4.png"], randX, randY, "image"));
+            myObstacles.push(new component(150, 200, [bigMeteor1, bigMeteor2, bigMeteor3, bigMeteor4], randX, randY, "image"));
         }
     
         // Moves Obstacles 
@@ -492,8 +550,8 @@ canvas {
             }
             
             // Meteor disappear after rock crosses ground
-            if ( (myObstacles[i].y + myObstacles[i].height - 20) > myGameArea.canvas.height && myObstacles[i].image.src.includes("Big")) {
-                myCrators.push(new component(100, 40, ["assets/crater.png"], myObstacles[i].x, myGameArea.canvas.height - 41, "image"));
+            if ( (myObstacles[i].y + myObstacles[i].height - 20) > myGameArea.canvas.height && (myObstacles[i].image.src == bigMeteor1 || myObstacles[i].image.src == bigMeteor2 || myObstacles[i].image.src == bigMeteor3 || myObstacles[i].image.src == bigMeteor4) ) {
+                myCrators.push(new component(100, 40, [craterL], myObstacles[i].x, myGameArea.canvas.height - 41, "image"));
                 myObstacles.shift();
             } else if ((myObstacles[i].y + myObstacles[i].height - 20) > myGameArea.canvas.height) {
                 myObstacles.shift();
@@ -528,14 +586,16 @@ canvas {
             myCrators[i].update();
         }
         
+        // Update Score Text
         if (!deathAnimation){
             myScore.text="SCORE: " + myGameArea.frameNo;
             myGamePiece.newPos();
         } else {
+            // Do Game Over
             myGamePiece.die();
         }
+
         myScore.update();
-        
         myGamePiece.update();
     }
     
@@ -571,29 +631,33 @@ canvas {
         //console.log("Key code received = " + e.keyCode);
         if (e.keyCode == '38' || e.keyCode == '32' || e.keyCode == '87'){  // JUMP!!
             // Up arrow || space bar || 'w' pressed
+            e.preventDefault();
             accelerate(-0.5);
         }
         else if (e.keyCode == '40' || e.keyCode == '83'){ // Stop Moving, Stand Still
             // down arrow || 's' pressed
+            e.preventDefault();
             leftPressed = false;
             rightPressed = false;
             downPressed = true;
         }
         else if (e.keyCode == '37' || e.keyCode == '65'){ // Move character left
             // left arrow or 'a' pressed
+            e.preventDefault();
             leftPressed = true;
             rightPressed = false;
             downPressed = false;
-            if (!myGamePiece.image.src.includes("flipped")){
+            if (myGamePiece.image.src == dino1L_A || myGamePiece.image.src == dino2L_A || myGamePiece.image.src == dino3L_A || myGamePiece.image.src == dino4L || myGamePiece.image.src == dino5L || myGamePiece.image.src == dino6L){
                 flipCharImage();
             }
         }
         else if (e.keyCode == '39' || e.keyCode == '68'){ // Move character right
             // right arrow  or 'd' pressed
+            e.preventDefault();
             rightPressed = true;
             leftPressed = false;
             downPressed = false;
-            if (myGamePiece.image.src.includes("flipped")){
+            if (myGamePiece.image.src == dino1flipped || myGamePiece.image.src == dino2flipped_A || myGamePiece.image.src == dino3flipped_A || myGamePiece.image.src == dino4flipped || myGamePiece.image.src == dino5flipped || myGamePiece.image.src == dino6flipped){
                 flipCharImage();
             }
         }
@@ -625,13 +689,14 @@ canvas {
 
     /* Start Button Related functions */
     function changeStart() {
-        if (document.getElementById("startButton").innerHTML == "<img src=\"assets/startBtn.png\" id=\"start\">"){
-            document.getElementById("startButton").innerHTML =  "<img src=\"assets/startBtn-mouseover.png\" id=\"start\">"
+        if (document.getElementById("startButton").innerHTML == "<img src=" + startBtn + " id=\"start\">"){
+            document.getElementById("startButton").innerHTML =  "<img src=" + startBtnMouseOver + " id=\"start\">";
         } 
     }
+
     function changeBack() {
-        if (document.getElementById("startButton").innerHTML == "<img src=\"assets/startBtn-mouseover.png\" id=\"start\">") {
-            document.getElementById("startButton").innerHTML = "<img src=\"assets/startBtn.png\" id=\"start\">"
+        if (document.getElementById("startButton").innerHTML == "<img src=" + startBtnMouseOver + " id=\"start\">") {
+            document.getElementById("startButton").innerHTML = "<img src=" + startBtn + " id=\"start\">";
         }
     }
     </script>
