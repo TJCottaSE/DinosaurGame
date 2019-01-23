@@ -5,30 +5,112 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8"/>
-<style>
-canvas {
-    border:1px solid #d3d3d3;    
-    position: absolute;
-    top: 5px;
-    left: 5px;
-}
-#startButton {
-    position: relative;
-    margin-top: 390px;
-    margin-left: 500px;
-}
-#start {
-    width: 400px;
-    height: 150px;
-}
-.selected:hover {
-    border-style: solid;
-    border-color: white;
-}
-</style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" charset="utf-8"/>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <style>
+    canvas {
+        border:1px solid #d3d3d3;    
+        position: absolute;
+        top: 5px;
+        left: 5px;
+    }
+    #startButton {
+        position: relative;
+        margin-top: 25px;
+        margin-left: 500px;
+    }
+    #start {
+        width: 400px;
+        height: 150px;
+    }
+    .selected:hover {
+        border-style: solid;
+        border-color: white;
+    }
+    body {
+        background:none transparent;
+    }
+    h1 {
+        color: rgb(255, 255, 255);
+        text-align: center;
+    }
+    #table {
+        margin-left: auto;
+        margin-right: auto;
+        width: 68%;
+    }
+    </style>
 </head>
-<body onload="myGameArea.launch()">
+
+<!--<body onload="myGameArea.launch()">-->
+<body>
+    <div id="table">
+        <h1>MEGATON-ERUPTION-RUN High Scores</h1>
+        <table class="table table-dark">
+            <thead>
+                <tr>
+                    <th style="width: 20%" scope="col">#</th>
+                    <th style="width: 60%" scope="col">Name</th>
+                    <th style="width: 20%" scope="col">Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr scope="row">
+                    <td class="font-weight-bold">1</td>
+                    <td id="1st"></td>
+                    <td class="font-weight-bold" id="1stScore">0</td>
+                </tr>
+                <tr scope="row">
+                    <td class="font-weight-bold">2</td>
+                    <td id="2nd"></td>
+                    <td class="font-weight-bold" id="2ndScore">0</td>
+                </tr>
+                <tr scope="row">
+                    <td class="font-weight-bold">3</td>
+                    <td id="3rd"></td>
+                    <td class="font-weight-bold" id="3rdScore">0</td>
+                </tr>
+                <tr scope="row">
+                    <td class="font-weight-bold">4</td>
+                    <td id="4th"></td>
+                    <td class="font-weight-bold" id="4thScore">0</td>
+                </tr>
+                <tr scope="row">
+                    <td class="font-weight-bold">5</td>
+                    <td id="5th"></td>
+                    <td class="font-weight-bold" id="5thScore">0</td>
+                </tr>
+                <tr scope="row">
+                    <td class="font-weight-bold">6</td>
+                    <td id="6th"></td>
+                    <td class="font-weight-bold" id="6thScore">0</td>
+                </tr>
+                <tr scope="row">
+                    <td class="font-weight-bold">7</td>
+                    <td id="7th"></td>
+                    <td class="font-weight-bold" id="7thScore">0</td>
+                </tr>
+                <tr scope="row">
+                    <td class="font-weight-bold">8</td>
+                    <td id="8th"></td>
+                    <td class="font-weight-bold" id="8thScore">0</td>
+                </tr>
+                <tr scope="row">
+                    <td class="font-weight-bold">9</td>
+                    <td id="9th"></td>
+                    <td class="font-weight-bold" id="9thScore">0</td>
+                </tr>
+                <tr scope="row">
+                    <td class="font-weight-bold">10</td>
+                    <td id="10th"></td>
+                    <td class="font-weight-bold" id="10thScore">0</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
     <!--This should be replaced with a title screen and appropriate buttons or selectors-->
     <div id="canvases"></div>
     <div id="start">
@@ -38,6 +120,34 @@ canvas {
     <br>
 
 <script>
+    // Receive data from WIX database to display high scores
+    window.onmessage = (event) => {
+        if (event.data) {
+            //console.log("event data" + event.data)
+            document.getElementById("1st").innerHTML = event.data[0].Name
+            document.getElementById("1stScore").innerHTML = event.data[0].Score
+            document.getElementById("2nd").innerHTML = event.data[1].Name
+            document.getElementById("2ndScore").innerHTML = event.data[1].Score
+            document.getElementById("3rd").innerHTML = event.data[2].Name
+            document.getElementById("3rdScore").innerHTML = event.data[2].Score
+            document.getElementById("4th").innerHTML = event.data[3].Name
+            document.getElementById("4thScore").innerHTML = event.data[3].Score
+            document.getElementById("5th").innerHTML = event.data[4].Name
+            document.getElementById("5thScore").innerHTML = event.data[4].Score
+            document.getElementById("6th").innerHTML = event.data[5].Name
+            document.getElementById("6thScore").innerHTML = event.data[5].Score
+            document.getElementById("7th").innerHTML = event.data[6].Name
+            document.getElementById("7thScore").innerHTML = event.data[6].Score
+            document.getElementById("8th").innerHTML = event.data[7].Name
+            document.getElementById("8thScore").innerHTML = event.data[7].Score
+            document.getElementById("9th").innerHTML = event.data[8].Name
+            document.getElementById("9thScore").innerHTML = event.data[8].Score
+            document.getElementById("10th").innerHTML = event.data[9].Name
+            document.getElementById("10thScore").innerHTML = event.data[9].Score
+        }
+    }
+
+    // Game related Code below
     var myGamePiece;
     var myObstacles = [];
     var myGround = [];
@@ -69,12 +179,27 @@ canvas {
     const meteorFlipped = "https://static.wixstatic.com/media/2a9d29_376ef0824efa4cc99797dd56f1ecadcb~mv2.png/v1/fill/w_236,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_376ef0824efa4cc99797dd56f1ecadcb~mv2.webp";
     const meteor = "https://static.wixstatic.com/media/2a9d29_b20462b7577d4a8bbab8b8fa0eb8e727~mv2.png/v1/fill/w_236,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_b20462b7577d4a8bbab8b8fa0eb8e727~mv2.webp";
     const groundL = "https://static.wixstatic.com/media/2a9d29_ec28e6dcab134527be09921192a2707f~mv2.png/v1/fill/w_600,h_168,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_ec28e6dcab134527be09921192a2707f~mv2.webp";
-    const dino6flipped = "https://static.wixstatic.com/media/2a9d29_37657adb707e43bdbe7269c9af77c18a~mv2.png/v1/fill/w_523,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_37657adb707e43bdbe7269c9af77c18a~mv2.webp";
-    const dino6L = "https://static.wixstatic.com/media/2a9d29_9311fb3fad3940c4b39999af6d0f1dd2~mv2.png/v1/fill/w_523,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_9311fb3fad3940c4b39999af6d0f1dd2~mv2.webp";
+    
+    
+    const dino6flipped_A = "https://static.wixstatic.com/media/2a9d29_37657adb707e43bdbe7269c9af77c18a~mv2.png/v1/fill/w_523,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_37657adb707e43bdbe7269c9af77c18a~mv2.webp";
+    const dino6L_A = "https://static.wixstatic.com/media/2a9d29_9311fb3fad3940c4b39999af6d0f1dd2~mv2.png/v1/fill/w_523,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_9311fb3fad3940c4b39999af6d0f1dd2~mv2.webp";
+    const dino6flipped_B = "https://static.wixstatic.com/media/2a9d29_03dc17e736f745899f065a71aba6bcff~mv2.png/v1/fill/w_569,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_03dc17e736f745899f065a71aba6bcff~mv2.webp";
+    const dino6L_B = "https://static.wixstatic.com/media/2a9d29_f92181f2cafd4df2876079589eeddef1~mv2.png/v1/fill/w_569,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_f92181f2cafd4df2876079589eeddef1~mv2.webp";   
+    // NEEDS TO BE UPDATED
+    const dino6flipped_C = "https://static.wixstatic.com/media/2a9d29_03dc17e736f745899f065a71aba6bcff~mv2.png/v1/fill/w_569,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_03dc17e736f745899f065a71aba6bcff~mv2.webp";
+    const dino6L_C = "https://static.wixstatic.com/media/2a9d29_f92181f2cafd4df2876079589eeddef1~mv2.png/v1/fill/w_569,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_f92181f2cafd4df2876079589eeddef1~mv2.webp";
+    
     const dino5flipped = "https://static.wixstatic.com/media/2a9d29_014cf3d3527f47cb84c298e971d436df~mv2.png/v1/fill/w_506,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_014cf3d3527f47cb84c298e971d436df~mv2.webp";
     const dino5L = "https://static.wixstatic.com/media/2a9d29_b1f807aa2feb4ec794b9a86d73e95ada~mv2.png/v1/fill/w_506,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_b1f807aa2feb4ec794b9a86d73e95ada~mv2.webp";
-    const dino4flipped = "https://static.wixstatic.com/media/2a9d29_16a13fb714c940039ac0f66295a435dd~mv2.png/v1/fill/w_600,h_395,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_16a13fb714c940039ac0f66295a435dd~mv2.webp";
-    const dino4L = "https://static.wixstatic.com/media/2a9d29_b4d74c7a746e41f39d55f989e2735a5b~mv2.png/v1/fill/w_600,h_395,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_b4d74c7a746e41f39d55f989e2735a5b~mv2.webp";
+
+    const dino4flipped_A = "https://static.wixstatic.com/media/2a9d29_16a13fb714c940039ac0f66295a435dd~mv2.png/v1/fill/w_600,h_395,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_16a13fb714c940039ac0f66295a435dd~mv2.webp";
+    const dino4L_A = "https://static.wixstatic.com/media/2a9d29_b4d74c7a746e41f39d55f989e2735a5b~mv2.png/v1/fill/w_600,h_395,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_b4d74c7a746e41f39d55f989e2735a5b~mv2.webp";
+    const dino4flipped_B = "https://static.wixstatic.com/media/2a9d29_f241dea606b643199102d47a83f894b8~mv2.png/v1/fill/w_455,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_f241dea606b643199102d47a83f894b8~mv2.webp";
+    const dino4L_B = "https://static.wixstatic.com/media/2a9d29_a7e44f6fc6ba48fb9fb2b60d636ce8b4~mv2.png/v1/fill/w_455,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_a7e44f6fc6ba48fb9fb2b60d636ce8b4~mv2.webp";    
+    // NEEDS TO BE UPDATED
+    const dino4flipped_C = "https://static.wixstatic.com/media/2a9d29_f241dea606b643199102d47a83f894b8~mv2.png/v1/fill/w_455,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_f241dea606b643199102d47a83f894b8~mv2.webp";
+    const dino4L_C = "https://static.wixstatic.com/media/2a9d29_a7e44f6fc6ba48fb9fb2b60d636ce8b4~mv2.png/v1/fill/w_455,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_a7e44f6fc6ba48fb9fb2b60d636ce8b4~mv2.webp";
+
     const dino3flipped_A = "https://static.wixstatic.com/media/2a9d29_d749320b36d142559cebccf3a319d11f~mv2_d_2040_2726_s_2.png/v1/fill/w_449,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_d749320b36d142559cebccf3a319d11f~mv2_d_2040_2726_s_2.webp";
     const dino3L_A = "https://static.wixstatic.com/media/2a9d29_e597783dea694e96a2628ec673f39cf1~mv2_d_2040_2726_s_2.png/v1/fill/w_449,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_e597783dea694e96a2628ec673f39cf1~mv2_d_2040_2726_s_2.webp";
     const dino3flipped_B = "https://static.wixstatic.com/media/2a9d29_35cc29c25f57478dbc429a01cd651cf2~mv2_d_2040_2726_s_2.png/v1/fill/w_449,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_35cc29c25f57478dbc429a01cd651cf2~mv2_d_2040_2726_s_2.webp";
@@ -87,8 +212,15 @@ canvas {
     const dino2L_B = "https://static.wixstatic.com/media/2a9d29_f7574ff0e4904dad822800497f298d9a~mv2.png/v1/fill/w_494,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_f7574ff0e4904dad822800497f298d9a~mv2.webp";
     const dino2flipped_C = "https://static.wixstatic.com/media/2a9d29_6227d70717ed45fc886b1d6a51b85d79~mv2.png/v1/fill/w_497,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_6227d70717ed45fc886b1d6a51b85d79~mv2.webp";    
     const dino2L_C = "https://static.wixstatic.com/media/2a9d29_078aec7d2fd34b99963c939f59b39d58~mv2.png/v1/fill/w_497,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_078aec7d2fd34b99963c939f59b39d58~mv2.webp";
-    const dino1flipped = "https://static.wixstatic.com/media/2a9d29_615cb8d236e446708bc9c31e81a342d6~mv2_d_2324_2780_s_2.png/v1/fill/w_501,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_615cb8d236e446708bc9c31e81a342d6~mv2_d_2324_2780_s_2.webp";
+    
+    const dino1flipped_A = "https://static.wixstatic.com/media/2a9d29_615cb8d236e446708bc9c31e81a342d6~mv2_d_2324_2780_s_2.png/v1/fill/w_501,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_615cb8d236e446708bc9c31e81a342d6~mv2_d_2324_2780_s_2.webp";
     const dino1L_A = "https://static.wixstatic.com/media/2a9d29_5341a508d07141fa825e4f0b6c8cabfe~mv2_d_2324_2780_s_2.png/v1/fill/w_501,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_5341a508d07141fa825e4f0b6c8cabfe~mv2_d_2324_2780_s_2.webp";
+    const dino1flipped_B = "https://static.wixstatic.com/media/2a9d29_4eb60a7e7de640b2aef22c265b36d7fa~mv2_d_2324_2881_s_2.png/v1/fill/w_483,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_4eb60a7e7de640b2aef22c265b36d7fa~mv2_d_2324_2881_s_2.webp";
+    const dino1L_B = "https://static.wixstatic.com/media/2a9d29_c58a9379492a4ad49e0239ee31cd6cee~mv2_d_2324_2881_s_2.png/v1/fill/w_483,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_c58a9379492a4ad49e0239ee31cd6cee~mv2_d_2324_2881_s_2.webp";
+    // NEEDS TO BE UPDATED
+    const dino1flipped_C = "https://static.wixstatic.com/media/2a9d29_4eb60a7e7de640b2aef22c265b36d7fa~mv2_d_2324_2881_s_2.png/v1/fill/w_483,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_4eb60a7e7de640b2aef22c265b36d7fa~mv2_d_2324_2881_s_2.webp";
+    const dino1L_C = "https://static.wixstatic.com/media/2a9d29_c58a9379492a4ad49e0239ee31cd6cee~mv2_d_2324_2881_s_2.png/v1/fill/w_483,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_c58a9379492a4ad49e0239ee31cd6cee~mv2_d_2324_2881_s_2.webp";
+
     const craterL = "https://static.wixstatic.com/media/2a9d29_544c88bc0f3949788b5779fa35fca348~mv2.png/v1/fill/w_600,h_334,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_544c88bc0f3949788b5779fa35fca348~mv2.webp";
     const playBG = "https://static.wixstatic.com/media/2a9d29_043089066aa54486b58dcb3b1c7fa642~mv2_d_3992_2500_s_4_2.jpg/v1/fill/w_600,h_375,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_043089066aa54486b58dcb3b1c7fa642~mv2_d_3992_2500_s_4_2.webp";
     const bigMeteor1 = "https://static.wixstatic.com/media/2a9d29_5ce81558fa4948b18142036ff790c4a3~mv2.png/v1/fill/w_405,h_600,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_5ce81558fa4948b18142036ff790c4a3~mv2.webp";
@@ -108,10 +240,11 @@ canvas {
     }
     
     function startGame() {
+        console.log("Start Game Called");
         var gamePieceImages = [];   // Images that are used for the player character
         switch(GamePieceCharacter){
             case 1:
-                gamePieceImages = [dino1flipped, dino1L_A];
+                gamePieceImages = [dino1L_A, dino1L_B, dino1L_C, dino1flipped_A, dino1flipped_B, dino1flipped_C];
                 break;
             case 2:
                 gamePieceImages = [dino2L_A, dino2L_B, dino2L_C, dino2flipped_A, dino2flipped_B, dino2flipped_C];
@@ -120,13 +253,13 @@ canvas {
                 gamePieceImages = [dino3L_A, dino3L_B, dino3L_C, dino3flipped_A, dino3flipped_B, dino3flipped_C];  // <-- Note the order of the images
                 break;
             case 4: 
-                gamePieceImages = [dino4flipped, dino4L];
+                gamePieceImages = [dino4L_A, dino4L_B, dino4L_C, dino4flipped_A, dino4flipped_B, dino4flipped_C];
                 break;
             case 5: 
                 gamePieceImages = [dino5flipped, dino5L];
                 break;
             case 6: 
-                gamePieceImages = [dino6flipped, dino6L];
+                gamePieceImages = [dino6L_A, dino6L_B, dino6L_C, dino6flipped_A, dino6flipped_B, dino6flipped_C];
                 break;
         }
         myGamePiece = new component(GamePieceWidth, GamePieceHeight, gamePieceImages, canvasWidth/2, canvasHeight-25, "image");
@@ -144,6 +277,7 @@ canvas {
         canvas : document.createElement("canvas"),
         // Draws the start Screen
         launch : function() {
+            console.log("myGameArea.launch");
             this.startCanvas.width = canvasWidth;
             this.startCanvas.height = canvasHeight;
             this.startCanvas.setAttribute("id", "startScreen");
@@ -160,8 +294,9 @@ canvas {
         },
         // Draws Select Character Screen
         selectChar : function() {
+            console.log("myGameArea.selectChar");
             document.getElementById("canvases").innerHTML = "";
-            document.getElementById("start").innerHTML = "<button id=\"startButton\" onclick=\"myGameArea.init()\" onmouseover=\"changeStart()\" onmouseout=\"changeBack()\"><img src=" + startBtn + " id=\"start\"></button>";
+            document.getElementById("start").innerHTML = "<button id=\"startButton\" onclick=\"myGameArea.init()\" onmouseover=\"changeStart()\" onmouseout=\"changeBack()\"><img src=" + startBtn + " id=\"start\" style=\"margin-top: -275px\"></button>";
             this.selectCanvas.width = canvasWidth;
             this.selectCanvas.height = canvasHeight;
             this.selectCanvas.setAttribute("id", "selectScreen");
@@ -194,7 +329,7 @@ canvas {
             dino3 = dino3 + widthSelectorPos*2 + "px;top:";
             dino3 = dino3 + heightSelectorPos + "px;z-index:10;\"></button>";
 
-            var dino4 = "<button onclick=\"setDino(4)\"><img src=" + dino4L + " width=\"" + Math.floor(canvasWidth/8) + "\" height=\"" + Math.floor(canvasHeight/4.5) + "\" class=\"selected\" style=";
+            var dino4 = "<button onclick=\"setDino(4)\"><img src=" + dino4L_A + " width=\"" + Math.floor(canvasWidth/8) + "\" height=\"" + Math.floor(canvasHeight/4.5) + "\" class=\"selected\" style=";
             dino4 = dino4 + "position:absolute;left:"
             dino4 = dino4 + widthSelectorPos*3 + "px;top:";
             dino4 = dino4 + heightSelectorPos + "px;z-index:10;\"></button>";
@@ -204,7 +339,7 @@ canvas {
             dino5 = dino5 + widthSelectorPos*4 + "px;top:";
             dino5 = dino5 + heightSelectorPos + "px;z-index:10;\"></button>";
 
-            var dino6 = "<button onclick=\"setDino(6)\"><img src=" + dino6L + " width=\"" + Math.floor(canvasWidth/8) + "\" height=\"" + Math.floor(canvasHeight/4.5) + "\" class=\"selected\" style=";
+            var dino6 = "<button onclick=\"setDino(6)\"><img src=" + dino6L_A + " width=\"" + Math.floor(canvasWidth/8) + "\" height=\"" + Math.floor(canvasHeight/4.5) + "\" class=\"selected\" style=";
             dino6 = dino6 + "position:absolute;left:"
             dino6 = dino6 + widthSelectorPos*5 + "px;top:";
             dino6 = dino6 + heightSelectorPos + "px;z-index:10;\"></button>";
@@ -213,6 +348,7 @@ canvas {
         },
         // Draws the background canvas below the play canvas
         init : function() {
+            console.log("myGameArea.init");
             document.getElementById("canvases").innerHTML = "";
             document.getElementById("start").innerHTML = "";
             document.getElementById("selectors").innerHTML = "";
@@ -228,7 +364,9 @@ canvas {
                 var can = document.getElementById("canvases");
                 can.insertAdjacentElement("afterbegin", backgroundCanvas2);
             }
-            background.src = playBG;
+            var bgs = [playBG, playBG];                                                             // UPDATE THIS WITH OTHER BACKGROUND IMAGE LINKS
+            
+            background.src = bgs[getRandomInt(0, bgs.length)];
     
             // Draws the play canvas
             this.canvas.width = canvasWidth;
@@ -244,20 +382,31 @@ canvas {
             }
             startGame();
         },
+        // Starts the game
         start : function() {
+            console.log("myGameArea.start");
             // Every 10 ms update the game area
             this.interval = setInterval(updateGameArea, 6);
             //this.interval2 = setInterval(updateBackground, 500);
         },
+        // Stops the Game
         stop : function() {
             clearInterval(this.interval);
             clearInterval(this.interval2);
         },
+        // Clears the play area as prep for redraw
         clear : function() {
             this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         }
     }
     
+    // Gets a random integer. The maximum is exclusive and the minimum is inclusive
+    function getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min)) + min;
+    }
+
     // Creates canvas drawable components on to a given canvas
     function component(width, height, imageList, x, y, type) {
         this.type = type;
@@ -428,7 +577,18 @@ canvas {
                 myScore.y = canvasHeight / 2 + 30;
                 myScore.update();
                 myGameArea.stop();
-                return;                                 // TAP INTO GAME OVER HERE FOR HI-SCORE
+                myGameArea.clear();
+                deathAnimation = false;
+                myObstacles = [];
+                myGround = [];
+                myCrators = [];
+                leftPressed = false;
+                rightPressed = false;
+                downPressed = false;
+                document.getElementById("canvases").innerHTML = "";
+                document.getElementById("start").innerHTML = "<button id=\"startButton\" onclick=\"myGameArea.selectChar()\" onmouseover=\"changeStart()\" onmouseout=\"changeBack()\"><img src=\"https://static.wixstatic.com/media/2a9d29_2a4ff41712a44c17be550d04ba5c739e~mv2.png/v1/fill/w_600,h_231,al_c,q_80,usm_0.66_1.00_0.01/2a9d29_2a4ff41712a44c17be550d04ba5c739e~mv2.webp\" id=\"start\"></button>";
+                window.parent.postMessage(myScore.score, "*");   // Send the score to WIX parent window
+                return;
             }
         }
 
@@ -589,6 +749,7 @@ canvas {
         // Update Score Text
         if (!deathAnimation){
             myScore.text="SCORE: " + myGameArea.frameNo;
+            myScore.score = myGameArea.frameNo;
             myGamePiece.newPos();
         } else {
             // Do Game Over
@@ -647,7 +808,7 @@ canvas {
             leftPressed = true;
             rightPressed = false;
             downPressed = false;
-            if (myGamePiece.image.src == dino1L_A || myGamePiece.image.src == dino2L_A || myGamePiece.image.src == dino3L_A || myGamePiece.image.src == dino4L || myGamePiece.image.src == dino5L || myGamePiece.image.src == dino6L){
+            if (myGamePiece.image.src == dino1L_A || myGamePiece.image.src == dino2L_A || myGamePiece.image.src == dino3L_A || myGamePiece.image.src == dino4L_A || myGamePiece.image.src == dino5L || myGamePiece.image.src == dino6L_A){
                 flipCharImage();
             }
         }
@@ -657,7 +818,7 @@ canvas {
             rightPressed = true;
             leftPressed = false;
             downPressed = false;
-            if (myGamePiece.image.src == dino1flipped || myGamePiece.image.src == dino2flipped_A || myGamePiece.image.src == dino3flipped_A || myGamePiece.image.src == dino4flipped || myGamePiece.image.src == dino5flipped || myGamePiece.image.src == dino6flipped){
+            if (myGamePiece.image.src == dino1flipped_A || myGamePiece.image.src == dino2flipped_A || myGamePiece.image.src == dino3flipped_A || myGamePiece.image.src == dino4flipped_A || myGamePiece.image.src == dino5flipped || myGamePiece.image.src == dino6flipped_A){
                 flipCharImage();
             }
         }
@@ -674,6 +835,7 @@ canvas {
             }
         }
     }
+    
     /*
      * Flips the game piece image from left facing to right facing when opposite direction
      * keys are pressed. 
