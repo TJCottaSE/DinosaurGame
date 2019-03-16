@@ -47,6 +47,10 @@
 
 <!--<body onload="myGameArea.launch()">-->
 <body>
+    <audio id="music">
+        <source src="https://static.wixstatic.com/mp3/2a9d29_16c765846193482eb59378778cb938a7.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
     <div id="table">
         <h1>MEGATON-ERUPTION-RUN High Scores</h1>
         <table class="table table-dark">
@@ -144,9 +148,31 @@
             document.getElementById("9thScore").innerHTML = event.data[8].Score
             document.getElementById("10th").innerHTML = event.data[9].Name
             document.getElementById("10thScore").innerHTML = event.data[9].Score
+            stopMusic();
         }
     }
 
+    // Music related code below
+    let music = document.getElementById("music"); 
+    music.preload = "auto";
+    music.loop = true;
+    
+    function playMusic() { 
+        music.play(); 
+    } 
+    
+    function pauseMusic() { 
+        music.pause(); 
+    } 
+
+    function reloadMusic() {
+        music.load();
+    }
+
+    function stopMusic() {
+        pauseMusic();
+        reloadMusic();
+    }
     // Game related Code below
     var myGamePiece;
     var myObstacles = [];
@@ -299,6 +325,7 @@
         },
         // Draws Select Character Screen
         selectChar : function() {
+            playMusic();
             console.log("myGameArea.selectChar");
             document.getElementById("canvases").innerHTML = "";
             document.getElementById("start").innerHTML = "<button id=\"startButton\" onclick=\"myGameArea.init()\" onmouseover=\"changeStart()\" onmouseout=\"changeBack()\"><img src=" + startBtn + " id=\"start\" style=\"margin-top: -275px\"></button>";
@@ -602,7 +629,7 @@
             deathAnimation = true;
         }
 
-        // Check end condition with obstacle crash
+        // Check end condition with meteor crash
         for (i = 0; i < myObstacles.length; i += 1) {
             if (myGamePiece.crashWith(myObstacles[i])) {
                 deathAnimation = true;
@@ -617,13 +644,18 @@
         }
     
         // Check end condition with crater crash
-        for (j = 0; j < myCrators.length; j += 1){
-            if (myGamePiece.crashWith(myCrators[j], true)){
-                deathAnimation = true;
-                console.log("Game Over - Crashed with Crator")
-            }
-        }
-    
+        /*
+         * Crater crash removed to make game easier at higher levels.
+         *
+         * 
+         * for (j = 0; j < myCrators.length; j += 1){
+         *   if (myGamePiece.crashWith(myCrators[j], true)){
+         *      deathAnimation = true;
+         *       console.log("Game Over - Crashed with Crator")
+         *   }
+         * }
+         */
+
         myGameArea.clear();
         document.onkeydown = checkKey;
         myGameArea.frameCount += 1;
